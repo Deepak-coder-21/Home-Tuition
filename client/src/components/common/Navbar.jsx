@@ -23,8 +23,7 @@ import {
   Star,
   Sliders,
   Sparkles,
-  ExternalLink,
-  Scale
+  ExternalLink
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -637,28 +636,6 @@ export default function Navbar() {
                         </div>
                       </div>
                     </Link>
-                    
-                    <div className="my-1 border-t border-stone-100" />
-                    
-                    {/* Platform Admin Sign In */}
-                    <Link
-                      to="/admin/login"
-                      onClick={() => setSignInDropdownOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 hover:bg-emerald-50/80 rounded-2xl transition group"
-                    >
-                      <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 group-hover:bg-emerald-700 group-hover:text-white transition-colors">
-                        <ShieldCheck className="w-4 h-4" />
-                      </div>
-                      <div className="text-left">
-                        <div className="text-xs font-bold text-stone-900 group-hover:text-emerald-800 flex items-center gap-1.5">
-                          <span>Platform Admin</span>
-                          <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 bg-emerald-100 text-emerald-800 rounded-full">Staff</span>
-                        </div>
-                        <div className="text-[10px] text-stone-500">
-                          Verification & audit console
-                        </div>
-                      </div>
-                    </Link>
                   </div>
                 </>
               )}
@@ -915,15 +892,6 @@ export default function Navbar() {
                 <GraduationCap className="w-4 h-4 text-stone-400" />
                 <span>Become a Tutor</span>
               </Link>
-              <Link
-                to="/terms-and-conditions"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-2xl transition"
-              >
-                <Scale className="w-4 h-4 text-stone-400" />
-                <span>Terms & Conditions</span>
-              </Link>
-
               <div className="pt-2 border-t border-stone-100 space-y-2">
                 <div className="grid grid-cols-2 gap-2">
                   <Link
@@ -943,16 +911,6 @@ export default function Navbar() {
                     <span>Tutor Login</span>
                   </Link>
                 </div>
-                
-                {/* Admin Sign In option in mobile */}
-                <Link
-                  to="/admin/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full flex items-center justify-center gap-1.5 p-2.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-full transition border border-emerald-200"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Admin & Staff Sign In</span>
-                </Link>
               </div>
 
               <Link
