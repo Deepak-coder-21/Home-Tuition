@@ -35,6 +35,7 @@ app.use(cors({
     if (
       configuredOrigins.includes(clean) ||
       configuredOrigins.includes('*') ||
+      clean.endsWith('.netlify.app') ||
       clean.endsWith('.vercel.app') ||
       clean.includes('localhost')
     ) {
