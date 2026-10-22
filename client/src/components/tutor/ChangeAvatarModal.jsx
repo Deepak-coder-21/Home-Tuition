@@ -165,22 +165,22 @@ export default function ChangeAvatarModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-brand-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 bg-brand-950/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 animate-in fade-in duration-200">
       <div 
-        className="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-warm-200"
+        className="bg-white rounded-t-3xl sm:rounded-3xl max-w-2xl w-full max-h-[92dvh] sm:max-h-[90vh] flex flex-col shadow-2xl border border-warm-200 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-brand-900 text-white p-6 sm:px-8 sm:py-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-800 border border-brand-700 flex items-center justify-center text-amber-300">
+        <div className="bg-brand-900 text-white p-4 sm:px-8 sm:py-5 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-800 border border-brand-700 flex items-center justify-center text-amber-300 shrink-0">
               <Camera className="w-5 h-5" />
             </div>
-            <div>
-              <h2 className="font-serif text-xl sm:text-2xl font-bold">
+            <div className="min-w-0">
+              <h2 className="font-serif text-lg sm:text-2xl font-bold truncate">
                 Change Profile Picture
               </h2>
-              <p className="text-xs text-stone-300">
+              <p className="text-xs text-stone-300 truncate">
                 Educator: {tutorName || 'Tutor Profile'}
               </p>
             </div>
@@ -188,37 +188,37 @@ export default function ChangeAvatarModal({
 
           <button
             onClick={onClose}
-            className="p-2 text-stone-300 hover:text-white hover:bg-brand-800 rounded-xl transition"
+            className="p-2 text-stone-300 hover:text-white hover:bg-brand-800 rounded-xl transition shrink-0 cursor-pointer"
             title="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content Body */}
-        <div className="p-6 sm:p-8 space-y-6">
+        {/* Content Body - Scrollable on mobile */}
+        <div className="p-4 sm:p-6 md:p-8 space-y-5 overflow-y-auto flex-1 overscroll-contain">
           
           {/* Live Preview Bar */}
-          <div className="bg-warm-50 rounded-2xl p-4 border border-warm-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="relative">
+          <div className="bg-warm-50 rounded-2xl p-3.5 sm:p-4 border border-warm-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="relative shrink-0">
                 <img
                   src={selectedAvatar}
                   alt="Profile preview"
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-brand-700 shadow-md"
+                  className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-brand-700 shadow-md"
                 />
                 <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-amber-500 text-stone-950 text-[10px] font-extrabold rounded-md shadow uppercase tracking-wider">
                   New
                 </span>
               </div>
-              <div className="space-y-0.5">
+              <div className="space-y-0.5 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-stone-900">Live Preview</span>
                   <span className="text-[10px] text-emerald-700 bg-emerald-100 font-bold px-2 py-0.5 rounded-full">
                     High Quality
                   </span>
                 </div>
-                <p className="text-xs text-stone-500">
+                <p className="text-xs text-stone-500 line-clamp-2 sm:line-clamp-none">
                   This photo will appear on your public search card, profile page, and inquiry chats.
                 </p>
               </div>
@@ -228,7 +228,7 @@ export default function ChangeAvatarModal({
               <button
                 type="button"
                 onClick={() => setSelectedAvatar(currentAvatar)}
-                className="text-xs font-semibold text-stone-600 hover:text-stone-900 flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 transition shrink-0"
+                className="text-xs font-semibold text-stone-600 hover:text-stone-900 flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 transition shrink-0 cursor-pointer self-stretch sm:self-auto justify-center"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>Revert to Previous</span>
@@ -237,11 +237,11 @@ export default function ChangeAvatarModal({
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex border-b border-stone-200 gap-2">
+          <div className="flex border-b border-stone-200 gap-1 overflow-x-auto scrollbar-none pb-0.5 shrink-0">
             <button
               type="button"
               onClick={() => setActiveTab('upload')}
-              className={`pb-3 px-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition ${
+              className={`pb-2.5 px-3 text-xs sm:text-sm font-bold flex items-center gap-1.5 border-b-2 whitespace-nowrap transition cursor-pointer shrink-0 ${
                 activeTab === 'upload'
                   ? 'border-brand-800 text-brand-900'
                   : 'border-transparent text-stone-500 hover:text-stone-800'
@@ -254,7 +254,7 @@ export default function ChangeAvatarModal({
             <button
               type="button"
               onClick={() => setActiveTab('preset')}
-              className={`pb-3 px-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition ${
+              className={`pb-2.5 px-3 text-xs sm:text-sm font-bold flex items-center gap-1.5 border-b-2 whitespace-nowrap transition cursor-pointer shrink-0 ${
                 activeTab === 'preset'
                   ? 'border-brand-800 text-brand-900'
                   : 'border-transparent text-stone-500 hover:text-stone-800'
@@ -267,7 +267,7 @@ export default function ChangeAvatarModal({
             <button
               type="button"
               onClick={() => setActiveTab('url')}
-              className={`pb-3 px-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition ${
+              className={`pb-2.5 px-3 text-xs sm:text-sm font-bold flex items-center gap-1.5 border-b-2 whitespace-nowrap transition cursor-pointer shrink-0 ${
                 activeTab === 'url'
                   ? 'border-brand-800 text-brand-900'
                   : 'border-transparent text-stone-500 hover:text-stone-800'
@@ -427,12 +427,12 @@ export default function ChangeAvatarModal({
         )}
 
         {/* Footer Actions */}
-        <div className="bg-stone-50 px-6 sm:px-8 py-4 border-t border-stone-200 flex items-center justify-end gap-3">
+        <div className="bg-stone-50 px-4 sm:px-8 py-3.5 border-t border-stone-200 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 shrink-0">
           <button
             type="button"
             onClick={onClose}
             disabled={isApplying}
-            className="px-4 py-2.5 text-xs font-semibold text-stone-700 hover:text-stone-900 bg-white border border-stone-300 rounded-xl hover:bg-stone-100 transition disabled:opacity-50"
+            className="w-full sm:w-auto px-4 py-2.5 text-xs font-semibold text-stone-700 hover:text-stone-900 bg-white border border-stone-300 rounded-xl hover:bg-stone-100 transition disabled:opacity-50 text-center cursor-pointer"
           >
             Cancel
           </button>
@@ -440,7 +440,7 @@ export default function ChangeAvatarModal({
             type="button"
             onClick={handleSaveAndApply}
             disabled={isApplying}
-            className="px-6 py-2.5 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+            className="w-full sm:w-auto px-6 py-2.5 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             {isApplying ? (
               <>

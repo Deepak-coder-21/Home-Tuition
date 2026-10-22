@@ -453,8 +453,8 @@ export default function StudentDashboardPage() {
       )}
       
       {/* Student Profile Overview Header */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div className="flex items-center gap-4 min-w-0 flex-1">
+      <div className="bg-white rounded-3xl p-4 sm:p-6 md:p-8 border border-stone-200 shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
+        <div className="flex items-center gap-3.5 sm:gap-4 min-w-0 w-full md:w-auto flex-1">
           <div className="relative group shrink-0">
             {currentUser?.avatar ? (
               <img
@@ -484,10 +484,10 @@ export default function StudentDashboardPage() {
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 text-xs font-semibold mb-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 text-[11px] font-semibold mb-1">
               <span>Parent / Student Account</span>
             </div>
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 truncate">
+            <h1 className="font-serif text-xl sm:text-3xl font-bold text-stone-900 truncate">
               {currentUser?.name || 'Vikram Verma'}
             </h1>
             <p className="text-xs sm:text-sm text-stone-500 truncate">
@@ -502,11 +502,11 @@ export default function StudentDashboardPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto shrink-0">
           <button
             type="button"
             onClick={() => handleTabChange('profile')}
-            className={`px-4 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border shadow-2xs cursor-pointer ${
+            className={`w-full sm:w-auto justify-center px-4 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border shadow-2xs cursor-pointer ${
               activeTab === 'profile'
                 ? 'bg-terracotta-600 text-white border-terracotta-600'
                 : 'bg-white hover:bg-stone-50 text-stone-700 border-stone-300'
@@ -518,7 +518,7 @@ export default function StudentDashboardPage() {
 
           <Link
             to="/search"
-            className="px-5 py-2.5 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow-sm transition flex items-center gap-1.5 whitespace-nowrap"
+            className="w-full sm:w-auto justify-center px-5 py-2.5 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow-sm transition flex items-center gap-1.5 whitespace-nowrap text-center"
           >
             <Search className="w-3.5 h-3.5" />
             <span>Discover More Tutors</span>
@@ -813,22 +813,22 @@ export default function StudentDashboardPage() {
 
       {/* TAB 3: Student & Parent Profile Editor */}
       {activeTab === 'profile' && (
-        <form onSubmit={handleProfileSave} className="space-y-6">
+        <form onSubmit={handleProfileSave} className="space-y-4 sm:space-y-6">
           {/* Header Banner */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 border border-stone-200 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-terracotta-50 text-terracotta-800 border border-terracotta-200 text-xs font-bold mb-2">
                 <User className="w-3.5 h-3.5" />
                 <span>Student & Parent Profile Management</span>
               </div>
-              <h2 className="font-serif text-2xl font-bold text-stone-900">Update Profile Details</h2>
+              <h2 className="font-serif text-xl sm:text-2xl font-bold text-stone-900">Update Profile Details</h2>
               <p className="text-xs sm:text-sm text-stone-500">
                 Keep your contact, schooling, and home address current so prospective tutors can assist you effectively.
               </p>
             </div>
             <button
               type="submit"
-              className="px-6 py-2.5 bg-terracotta-600 hover:bg-terracotta-700 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-2 self-start sm:self-auto shrink-0"
+              className="w-full sm:w-auto justify-center px-6 py-2.5 bg-terracotta-600 hover:bg-terracotta-700 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-2 self-stretch sm:self-auto shrink-0 cursor-pointer"
             >
               <Save className="w-4 h-4" />
               <span>Save Changes</span>
@@ -847,7 +847,7 @@ export default function StudentDashboardPage() {
           )}
 
           {/* Section 1: Profile Photo Studio */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-soft space-y-5">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 border border-stone-200 shadow-soft space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-stone-100">
               <div>
                 <h3 className="text-sm font-bold uppercase tracking-wider text-stone-900 flex items-center gap-2">
@@ -862,24 +862,24 @@ export default function StudentDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setProfileForm(prev => ({ ...prev, avatar: '' }))}
-                  className="text-xs font-semibold text-stone-500 hover:text-red-600 self-start sm:self-auto"
+                  className="text-xs font-semibold text-stone-500 hover:text-red-600 self-start sm:self-auto cursor-pointer"
                 >
                   Remove Photo
                 </button>
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left">
               {/* Photo Preview */}
               <div className="relative shrink-0">
                 {profileForm.avatar ? (
                   <img
                     src={profileForm.avatar}
                     alt="Student Preview"
-                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-2 border-terracotta-400 shadow-md"
+                    className="w-20 h-20 sm:w-28 sm:h-28 rounded-2xl object-cover border-2 border-terracotta-400 shadow-md"
                   />
                 ) : (
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-terracotta-100 text-terracotta-800 font-serif font-bold text-3xl flex items-center justify-center border-2 border-dashed border-terracotta-300 shadow-inner">
+                  <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-2xl bg-terracotta-100 text-terracotta-800 font-serif font-bold text-2xl sm:text-3xl flex items-center justify-center border-2 border-dashed border-terracotta-300 shadow-inner">
                     {profileForm.name?.charAt(0) || 'S'}
                   </div>
                 )}
@@ -890,10 +890,10 @@ export default function StudentDashboardPage() {
 
               {/* Upload Controls */}
               <div className="flex-1 space-y-3 w-full">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <label className="cursor-pointer px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5">
+                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 w-full">
+                  <label className="cursor-pointer px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold rounded-xl shadow transition flex items-center justify-center gap-1.5">
                     <Upload className="w-3.5 h-3.5 text-stone-300" />
-                    <span>Upload from Computer</span>
+                    <span>Upload from Device</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -905,14 +905,14 @@ export default function StudentDashboardPage() {
                   <button
                     type="button"
                     onClick={() => setShowUrlInput(!showUrlInput)}
-                    className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-stone-700 text-xs font-semibold rounded-xl transition"
+                    className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-stone-700 text-xs font-semibold rounded-xl transition cursor-pointer justify-center"
                   >
                     {showUrlInput ? 'Hide URL Input' : 'Paste Image URL'}
                   </button>
                 </div>
 
                 {showUrlInput && (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="url"
                       placeholder="https://example.com/avatar.jpg"
@@ -935,7 +935,7 @@ export default function StudentDashboardPage() {
                 <Sparkles className="w-3.5 h-3.5 text-amber-600" />
                 <span>Or select a ready-to-use avatar:</span>
               </div>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
                 {STUDENT_AVATAR_PRESETS.map((preset) => {
                   const isSelected = profileForm.avatar === preset.url;
                   return (
@@ -943,13 +943,13 @@ export default function StudentDashboardPage() {
                       key={preset.id}
                       type="button"
                       onClick={() => setProfileForm(prev => ({ ...prev, avatar: preset.url }))}
-                      className={`group p-2 rounded-xl border-2 text-center transition flex flex-col items-center gap-1.5 ${
+                      className={`group p-2 rounded-xl border-2 text-center transition flex flex-col items-center gap-1.5 cursor-pointer ${
                         isSelected
                           ? 'border-terracotta-600 bg-terracotta-50/60 ring-2 ring-terracotta-600/20 shadow-xs'
                           : 'border-stone-200 hover:border-stone-400 bg-white'
                       }`}
                     >
-                      <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-stone-200">
+                      <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-lg overflow-hidden border border-stone-200">
                         <img
                           src={preset.url}
                           alt={preset.label}
@@ -972,7 +972,7 @@ export default function StudentDashboardPage() {
           </div>
 
           {/* Section 2: Personal & Contact Information */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-soft space-y-5">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 border border-stone-200 shadow-soft space-y-5">
             <div className="pb-4 border-b border-stone-100">
               <h3 className="text-sm font-bold uppercase tracking-wider text-stone-900 flex items-center gap-2">
                 <User className="w-4 h-4 text-terracotta-600" />
@@ -981,7 +981,7 @@ export default function StudentDashboardPage() {
               <p className="text-xs text-stone-500">Contact person and student identity</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
               <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
                   Parent / Guardian Name *
@@ -1054,7 +1054,7 @@ export default function StudentDashboardPage() {
           </div>
 
           {/* Section 3: Academic Profile */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-soft space-y-5">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 border border-stone-200 shadow-soft space-y-5">
             <div className="pb-4 border-b border-stone-100">
               <h3 className="text-sm font-bold uppercase tracking-wider text-stone-900 flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-terracotta-600" />
@@ -1063,7 +1063,7 @@ export default function StudentDashboardPage() {
               <p className="text-xs text-stone-500">Curriculum, standard, and target subjects</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
               <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
                   Current Grade / Standard *
@@ -1124,7 +1124,7 @@ export default function StudentDashboardPage() {
           </div>
 
           {/* Section 4: Home Tuition Address & Postal Lookup */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-soft space-y-5">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 border border-stone-200 shadow-soft space-y-5">
             <div className="pb-4 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <h3 className="text-sm font-bold uppercase tracking-wider text-stone-900 flex items-center gap-2">
@@ -1140,7 +1140,7 @@ export default function StudentDashboardPage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
               <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
                   6-Digit Postal PIN Code *
@@ -1196,7 +1196,7 @@ export default function StudentDashboardPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
               <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
                   House / Flat / Building No. *
@@ -1244,7 +1244,7 @@ export default function StudentDashboardPage() {
           </div>
 
           {/* Section 5: Tuition Mode & Learning Goals */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-soft space-y-5">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 border border-stone-200 shadow-soft space-y-5">
             <div className="pb-4 border-b border-stone-100">
               <h3 className="text-sm font-bold uppercase tracking-wider text-stone-900 flex items-center gap-2">
                 <Compass className="w-4 h-4 text-terracotta-600" />
@@ -1266,7 +1266,7 @@ export default function StudentDashboardPage() {
                       key={mode.id}
                       type="button"
                       onClick={() => setProfileForm(prev => ({ ...prev, preferredMode: mode.id }))}
-                      className={`p-3.5 rounded-2xl border text-left transition flex items-start gap-3 ${
+                      className={`p-3.5 rounded-2xl border text-left transition flex items-start gap-3 cursor-pointer ${
                         isSelected
                           ? 'border-terracotta-600 bg-terracotta-50/60 ring-2 ring-terracotta-600/20 shadow-xs'
                           : 'border-stone-200 hover:border-stone-300 bg-white'
@@ -1304,18 +1304,18 @@ export default function StudentDashboardPage() {
           </div>
 
           {/* Bottom Save Bar */}
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
             <button
               type="button"
               onClick={() => handleTabChange('inquiries')}
-              className="px-5 py-2.5 text-xs font-semibold text-stone-600 hover:text-stone-900 bg-white border border-stone-300 rounded-xl hover:bg-stone-50 transition"
+              className="w-full sm:w-auto text-center px-5 py-2.5 text-xs font-semibold text-stone-600 hover:text-stone-900 bg-white border border-stone-300 rounded-xl hover:bg-stone-50 transition cursor-pointer"
             >
               Back to Inquiries
             </button>
 
             <button
               type="submit"
-              className="px-7 py-3 bg-terracotta-600 hover:bg-terracotta-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2"
+              className="w-full sm:w-auto justify-center px-7 py-3 bg-terracotta-600 hover:bg-terracotta-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer"
             >
               <Save className="w-4 h-4" />
               <span>Save Changes</span>
