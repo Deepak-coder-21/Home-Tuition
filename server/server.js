@@ -23,8 +23,25 @@ const app = express();
 // Middlewares
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ limit: '25mb', extended: true }));
+const clientUrlEnv = process.env.CLIENT_URL || '';
+const configuredOrigins = clientUrlEnv
+  ? clientUrlEnv.split(',').map((s) => s.trim().replace(/\/$/, ''))
+  : ['http://localhost:5173', 'http://localhost:5174'];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || ['http://localhost:5173', 'http://localhost:5174'],
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const clean = origin.replace(/\/$/, '');
+    if (
+      configuredOrigins.includes(clean) ||
+      configuredOrigins.includes('*') ||
+      clean.endsWith('.vercel.app') ||
+      clean.includes('localhost')
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
 

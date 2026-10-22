@@ -74,6 +74,18 @@ if (typeof window !== 'undefined') {
   });
 }
 
+// Seamlessly route API requests to remote backend in production (e.g., Render)
+const API_BASE_URL = (import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || '').replace(/\/$/, '');
+if (API_BASE_URL && API_BASE_URL !== 'http://localhost:5000' && typeof window !== 'undefined') {
+  const originalFetch = window.fetch;
+  window.fetch = (url, options) => {
+    if (typeof url === 'string' && url.startsWith('/api')) {
+      return originalFetch(`${API_BASE_URL}${url}`, options);
+    }
+    return originalFetch(url, options);
+  };
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
@@ -81,4 +93,5 @@ createRoot(document.getElementById('root')).render(
     </Provider>
   </StrictMode>,
 );
+
 
