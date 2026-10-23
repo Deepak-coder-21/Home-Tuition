@@ -111,9 +111,15 @@ export const registerUser = async (req, res) => {
       city, 
       locality, 
       houseLocation,
+      pincode,
+      landmark,
       studentName, 
       studentGrade, 
       board,
+      school,
+      subjectsNeeded,
+      preferredMode,
+      learningGoals,
       agreedToPolicy, // MANDATORY: User must agree to website policies
       // Tutor specific fields
       tagline,
@@ -193,9 +199,15 @@ export const registerUser = async (req, res) => {
       city: city || '',
       locality: locality || '',
       houseLocation: houseLocation?.trim() || '',
+      pincode: pincode?.trim() || '',
+      landmark: landmark?.trim() || '',
       studentName: studentName?.trim() || '',
       studentGrade: studentGrade || '',
       board: board || '',
+      school: school?.trim() || '',
+      subjectsNeeded: subjectsNeeded?.trim() || '',
+      preferredMode: preferredMode || 'home_visit',
+      learningGoals: learningGoals?.trim() || '',
       agreedToPolicy: true,
       agreedToPolicyAt: new Date()
     });
@@ -214,7 +226,7 @@ export const registerUser = async (req, res) => {
           state: state || 'Delhi NCR',
           city: city || 'New Delhi',
           localities: Array.isArray(localities) ? localities : (localities ? localities.split(',').map(s => s.trim()) : [locality || 'Main']),
-          pincodes: []
+          pincodes: pincode?.trim() ? [pincode.trim()] : []
         },
         modes: modes || ['home_visit', 'online'],
         subjects: subjects || ['Mathematics'],
@@ -243,13 +255,20 @@ export const registerUser = async (req, res) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar || (user.role === 'tutor' ? tutorProfile?.avatar : '') || '',
-        phone: user.phone,
-        state: user.state,
-        city: user.city,
-        locality: user.locality,
-        houseLocation: user.houseLocation,
-        studentName: user.studentName,
-        studentGrade: user.studentGrade,
+        phone: user.phone || '',
+        state: user.state || '',
+        city: user.city || '',
+        locality: user.locality || '',
+        houseLocation: user.houseLocation || '',
+        pincode: user.pincode || '',
+        landmark: user.landmark || '',
+        studentName: user.studentName || '',
+        studentGrade: user.studentGrade || '',
+        board: user.board || '',
+        school: user.school || '',
+        subjectsNeeded: user.subjectsNeeded || '',
+        preferredMode: user.preferredMode || 'home_visit',
+        learningGoals: user.learningGoals || '',
         tutorProfileId: tutorProfile?._id
       }
     });
@@ -308,10 +327,19 @@ export const loginUser = async (req, res) => {
         role: user.role,
         avatar: tutorAvatar,
         phone: user.phone || '',
-        city: user.city,
-        locality: user.locality,
-        studentName: user.studentName,
-        studentGrade: user.studentGrade,
+        state: user.state || '',
+        city: user.city || '',
+        locality: user.locality || '',
+        houseLocation: user.houseLocation || '',
+        pincode: user.pincode || '',
+        landmark: user.landmark || '',
+        studentName: user.studentName || '',
+        studentGrade: user.studentGrade || '',
+        board: user.board || '',
+        school: user.school || '',
+        subjectsNeeded: user.subjectsNeeded || '',
+        preferredMode: user.preferredMode || 'home_visit',
+        learningGoals: user.learningGoals || '',
         tutorProfileId
       }
     });
@@ -523,6 +551,7 @@ export const updateUserProfile = async (req, res) => {
 
     const allowedUpdates = [
       'name', 'phone', 'state', 'city', 'locality', 'houseLocation',
+      'pincode', 'landmark', 'school', 'subjectsNeeded', 'preferredMode', 'learningGoals',
       'studentName', 'studentGrade', 'board', 'avatar'
     ];
 
@@ -556,9 +585,15 @@ export const updateUserProfile = async (req, res) => {
         city: user.city || '',
         locality: user.locality || '',
         houseLocation: user.houseLocation || '',
+        pincode: user.pincode || '',
+        landmark: user.landmark || '',
         studentName: user.studentName || '',
         studentGrade: user.studentGrade || '',
-        board: user.board || ''
+        board: user.board || '',
+        school: user.school || '',
+        subjectsNeeded: user.subjectsNeeded || '',
+        preferredMode: user.preferredMode || 'home_visit',
+        learningGoals: user.learningGoals || ''
       }
     });
   } catch (error) {

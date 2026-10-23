@@ -195,20 +195,21 @@ export default function StudentDashboardPage() {
   };
 
   const handlePinChange = async (pin) => {
-    setProfileForm(prev => ({ ...prev, pincode: pin }));
-    if (/^\d{6}$/.test(pin.trim())) {
+    const cleaned = pin.replace(/\D/g, '').slice(0, 6);
+    setProfileForm(prev => ({ ...prev, pincode: cleaned }));
+    if (/^\d{6}$/.test(cleaned)) {
       setIsLookingUpPin(true);
       setPinLookupMsg('Detecting location...');
       try {
-        const res = await lookupPincode(pin.trim());
+        const res = await lookupPincode(cleaned);
         if (res && res.state) {
           setProfileForm(prev => ({
             ...prev,
-            state: res.state,
+            state: res.state || prev.state,
             city: res.district || prev.city,
-            locality: (res.places && res.places[0]?.name) || prev.locality
+            locality: prev.locality ? prev.locality : ((res.places && res.places[0]?.name) || '')
           }));
-          setPinLookupMsg(`Detected: ${res.district}, ${res.state}`);
+          setPinLookupMsg(`Detected: ${res.district || ''}, ${res.state || ''}`);
         } else {
           setPinLookupMsg('');
         }
@@ -1213,13 +1214,12 @@ export default function StudentDashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
               <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  6-Digit Postal PIN Code *
+                  6-Digit Postal PIN Code
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     maxLength={6}
-                    required
                     value={profileForm.pincode}
                     onChange={(e) => handlePinChange(e.target.value)}
                     placeholder="e.g. 110048"
@@ -1239,11 +1239,10 @@ export default function StudentDashboardPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  City / District *
+                  City / District
                 </label>
                 <input
                   type="text"
-                  required
                   value={profileForm.city}
                   onChange={(e) => setProfileForm(prev => ({ ...prev, city: e.target.value }))}
                   placeholder="e.g. New Delhi"
@@ -1253,11 +1252,10 @@ export default function StudentDashboardPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  State / UT *
+                  State / UT
                 </label>
                 <input
                   type="text"
-                  required
                   value={profileForm.state}
                   onChange={(e) => setProfileForm(prev => ({ ...prev, state: e.target.value }))}
                   placeholder="e.g. Delhi NCR"
@@ -1269,13 +1267,12 @@ export default function StudentDashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
               <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  House / Flat / Building No. *
+                  House / Flat / Building No.
                 </label>
                 <div className="relative">
                   <Home className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
                   <input
                     type="text"
-                    required
                     value={profileForm.houseLocation}
                     onChange={(e) => setProfileForm(prev => ({ ...prev, houseLocation: e.target.value }))}
                     placeholder="e.g. Flat 402, Block B, Silver Oak Apts"
@@ -1286,11 +1283,10 @@ export default function StudentDashboardPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  Locality / Sector / Colony *
+                  Locality / Sector / Colony
                 </label>
                 <input
                   type="text"
-                  required
                   value={profileForm.locality}
                   onChange={(e) => setProfileForm(prev => ({ ...prev, locality: e.target.value }))}
                   placeholder="e.g. Greater Kailash II"

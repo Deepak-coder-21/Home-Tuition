@@ -169,6 +169,7 @@ export default function StudentAuthPage({ initialMode = 'login' }) {
       state: studentForm.state,
       city: studentForm.city,
       locality: studentForm.locality,
+      pincode: studentPincode?.trim() || '',
       houseLocation: studentForm.houseLocation.trim() || '',
       phone: studentForm.phone.trim(),
       email: studentForm.email.trim(),

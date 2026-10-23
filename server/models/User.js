@@ -47,20 +47,54 @@ const userSchema = new mongoose.Schema({
   },
   houseLocation: {
     type: String,
-    trim: true
+    trim: true,
+    default: ''
+  },
+  pincode: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  landmark: {
+    type: String,
+    trim: true,
+    default: ''
   },
   // Student specific details
   studentName: {
     type: String,
-    trim: true
+    trim: true,
+    default: ''
   },
   studentGrade: {
     type: String,
-    trim: true
+    trim: true,
+    default: ''
   },
   board: {
     type: String,
-    trim: true
+    trim: true,
+    default: ''
+  },
+  school: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  subjectsNeeded: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  preferredMode: {
+    type: String,
+    trim: true,
+    default: 'home_visit'
+  },
+  learningGoals: {
+    type: String,
+    trim: true,
+    default: ''
   },
   isBlocked: {
     type: Boolean,
