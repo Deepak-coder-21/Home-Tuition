@@ -67,22 +67,7 @@ export const authSlice = createSlice({
         );
       }
 
-      // Fallback for admin account
-      if (!user && (role === 'admin' || !role) && (!password || password === 'adminpassword' || password === 'admin123' || password === 'password123')) {
-        user = {
-          id: '6ab67ddc068be2906e09d5dc',
-          _id: '6ab67ddc068be2906e09d5dc',
-          name: 'VidyaNest Admin',
-          email: 'admin@vidyanest.com',
-          role: 'admin',
-          department: 'Tutor Verification & Moderation'
-        };
-      }
-
       if (user) {
-        if (user.role === 'admin') {
-          user.email = 'admin@vidyanest.com';
-        }
         const normalized = {
           ...user,
           id: user._id || user.id || `usr-${Date.now()}`

@@ -275,7 +275,8 @@ export const loginUser = async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
 
-    const isMatch = (await user?.matchPassword(password)) || (user?.role === 'admin' && (password === 'adminpassword' || password === 'password123' || password === 'admin123'));
+    // Strictly match password against MongoDB bcrypt hash - NO hardcoded passwords
+    const isMatch = await user?.matchPassword(password);
 
     if (!user || !isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
@@ -303,10 +304,10 @@ export const loginUser = async (req, res) => {
       user: {
         _id: user._id,
         name: user.name,
-        email: user.role === 'admin' ? 'admin@vidyanest.com' : user.email,
+        email: user.email,
         role: user.role,
         avatar: tutorAvatar,
-        phone: user.role === 'admin' ? '' : user.phone,
+        phone: user.phone || '',
         city: user.city,
         locality: user.locality,
         studentName: user.studentName,
@@ -339,10 +340,6 @@ export const getMe = async (req, res) => {
     }
 
     const userObj = user.toObject();
-    if (user.role === 'admin') {
-      userObj.email = 'admin@vidyanest.com';
-      delete userObj.phone;
-    }
 
     res.json({
       success: true,

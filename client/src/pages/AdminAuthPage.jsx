@@ -80,12 +80,7 @@ export default function AdminAuthPage() {
       navigate(getDestination(), { replace: true });
     } catch {
       setIsSubmitting(false);
-      // Fallback
-      dispatch(login({
-        email: loginEmail.trim(),
-        password: loginPassword,
-        role: 'admin'
-      }));
+      setErrorMessage('Network error connecting to the authentication server. Please check your connection and try again.');
     }
   };
 

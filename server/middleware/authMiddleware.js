@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { getAdminEmail } from '../utils/adminSync.js';
 
 // Helper to generate signed JWT token
 export const generateToken = (id, role) => {
@@ -11,6 +12,7 @@ export const generateToken = (id, role) => {
 // Protect route middleware
 export const protect = async (req, res, next) => {
   let token;
+  const configuredAdminEmail = getAdminEmail();
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
@@ -22,7 +24,7 @@ export const protect = async (req, res, next) => {
         req.user = adminInDb || {
           _id: 'usr-admin-1',
           name: 'VidyaNest Administrator',
-          email: 'admin@vidyanest.com',
+          email: configuredAdminEmail,
           role: 'admin'
         };
         return next();
@@ -42,7 +44,7 @@ export const protect = async (req, res, next) => {
         req.user = adminInDb || {
           _id: 'usr-admin-1',
           name: 'VidyaNest Administrator',
-          email: 'admin@vidyanest.com',
+          email: configuredAdminEmail,
           role: 'admin'
         };
       }
@@ -58,7 +60,7 @@ export const protect = async (req, res, next) => {
         req.user = adminInDb || {
           _id: 'usr-admin-1',
           name: 'VidyaNest Administrator',
-          email: 'admin@vidyanest.com',
+          email: configuredAdminEmail,
           role: 'admin'
         };
         return next();
@@ -73,7 +75,7 @@ export const protect = async (req, res, next) => {
     req.user = adminInDb || {
       _id: 'usr-admin-1',
       name: 'VidyaNest Administrator',
-      email: 'admin@vidyanest.com',
+      email: configuredAdminEmail,
       role: 'admin'
     };
     return next();

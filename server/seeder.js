@@ -20,11 +20,11 @@ const seedData = async () => {
 
     console.log('Seeding administrative and student users...');
     // 1. Admin User
-    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@vidyanest.com').toLowerCase().trim();
+    const adminEmail = (process.env.BREVO_SENDER_EMAIL || process.env.BREVO_SENDER_EMAI || process.env.ADMIN_EMAIL || 'deepak2005dev@gmail.com').toLowerCase().trim();
     const adminUser = await User.create({
       name: 'VidyaNest Admin',
       email: adminEmail,
-      password: 'adminpassword',
+      password: 'AdminPassword_2026!#',
       role: 'admin',
       phone: '+91 (011) 4567-8900',
       city: 'New Delhi'

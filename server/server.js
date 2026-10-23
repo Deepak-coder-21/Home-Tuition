@@ -14,9 +14,12 @@ import adminRoutes from './routes/adminRoutes.js';
 import locationRoutes from './routes/locationRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import { startDocumentReminderScheduler } from './utils/documentReminderScheduler.js';
+import { syncAdminUser } from './utils/adminSync.js';
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB & Synchronize Admin Account
+connectDB().then(() => {
+  syncAdminUser();
+});
 
 const app = express();
 
