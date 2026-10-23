@@ -115,7 +115,27 @@ export const getMyProfile = async (req, res) => {
     }
 
     if (!profile) {
-      return res.status(404).json({ message: 'Tutor profile not found for this account' });
+      // Auto-create tutor profile if user is a tutor and document does not exist yet
+      profile = await TutorProfile.create({
+        user: req.user._id,
+        name: req.user.name || 'Educator',
+        tagline: 'Qualified Home & Online Educator',
+        qualification: 'Graduate / Educator',
+        experienceYears: 2,
+        location: {
+          state: req.user.state || 'Delhi NCR',
+          city: req.user.city || 'New Delhi',
+          localities: [req.user.locality || 'Main'],
+          pincodes: []
+        },
+        modes: ['home_visit', 'online'],
+        subjects: ['Mathematics'],
+        classes: ['Class 9 - 10 (Secondary)'],
+        boards: ['CBSE'],
+        rates: { monthly: 7000, hourly: 583 }
+      });
+      await User.findByIdAndUpdate(req.user._id, { tutorProfileId: profile._id });
+      profile = await TutorProfile.findById(profile._id).populate('user', 'name email phone avatar city state');
     }
 
     // Fetch real reviews from MongoDB
@@ -143,6 +163,7 @@ export const getMyProfile = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('getMyProfile error:', error);
     res.status(500).json({ success: false, message: 'Unable to retrieve tutor profile.' });
   }
 };
@@ -160,7 +181,25 @@ export const updateMyProfile = async (req, res) => {
       profile = await TutorProfile.findById(req.user.tutorProfileId);
     }
     if (!profile) {
-      return res.status(404).json({ message: 'Tutor profile not found for this account' });
+      profile = await TutorProfile.create({
+        user: req.user._id,
+        name: req.user.name || 'Educator',
+        tagline: 'Qualified Home & Online Educator',
+        qualification: 'Graduate / Educator',
+        experienceYears: 2,
+        location: {
+          state: req.user.state || 'Delhi NCR',
+          city: req.user.city || 'New Delhi',
+          localities: [req.user.locality || 'Main'],
+          pincodes: []
+        },
+        modes: ['home_visit', 'online'],
+        subjects: ['Mathematics'],
+        classes: ['Class 9 - 10 (Secondary)'],
+        boards: ['CBSE'],
+        rates: { monthly: 7000, hourly: 583 }
+      });
+      await User.findByIdAndUpdate(req.user._id, { tutorProfileId: profile._id });
     }
 
     const allowedUpdates = [
@@ -204,6 +243,37 @@ export const updateMyProfile = async (req, res) => {
           const monthly = Number(req.body.rates?.monthly) >= 0 ? Number(req.body.rates.monthly) : (profile.rates?.monthly || 0);
           const hourly = Number(req.body.rates?.hourly) >= 0 ? Number(req.body.rates.hourly) : (monthly ? Math.round(monthly / 12) : 0);
           profile.rates = { monthly, hourly };
+        } else if (field === 'location') {
+          profile.location = {
+            state: req.body.location?.state?.trim() || profile.location?.state || 'Delhi NCR',
+            city: req.body.location?.city?.trim() || profile.location?.city || 'New Delhi',
+            localities: Array.isArray(req.body.location?.localities) ? req.body.location.localities : (profile.location?.localities || []),
+            pincodes: Array.isArray(req.body.location?.pincodes) ? req.body.location.pincodes : (profile.location?.pincodes || [])
+          };
+        } else if (field === 'modes') {
+          if (Array.isArray(req.body.modes)) {
+            const validModes = ['home_visit', 'online', 'tutor_place'];
+            const filtered = req.body.modes.filter(m => validModes.includes(m));
+            profile.modes = filtered.length > 0 ? filtered : ['home_visit', 'online'];
+          }
+        } else if (field === 'subjects') {
+          if (Array.isArray(req.body.subjects)) {
+            profile.subjects = req.body.subjects;
+          }
+        } else if (field === 'classes') {
+          if (Array.isArray(req.body.classes)) {
+            profile.classes = req.body.classes;
+          }
+        } else if (field === 'boards') {
+          if (Array.isArray(req.body.boards)) {
+            profile.boards = req.body.boards;
+          }
+        } else if (field === 'experienceYears') {
+          profile.experienceYears = Number(req.body.experienceYears) >= 0 ? Number(req.body.experienceYears) : (profile.experienceYears || 0);
+        } else if (field === 'name') {
+          if (req.body.name?.trim()) {
+            profile.name = req.body.name.trim();
+          }
         } else {
           profile[field] = req.body[field];
         }
@@ -212,13 +282,15 @@ export const updateMyProfile = async (req, res) => {
 
     const updatedProfile = await profile.save();
 
-    // Also update User avatar in User model to guarantee sync across the entire platform
-    if (profile.avatar) {
-      await User.findByIdAndUpdate(req.user._id, { 
-        avatar: profile.avatar,
-        tutorProfileId: profile._id
-      });
-    }
+    // Also sync User fields (avatar, name, location) in User model
+    const userUpdates = { tutorProfileId: profile._id };
+    if (profile.avatar) userUpdates.avatar = profile.avatar;
+    if (profile.name) userUpdates.name = profile.name;
+    if (profile.location?.state) userUpdates.state = profile.location.state;
+    if (profile.location?.city) userUpdates.city = profile.location.city;
+    if (profile.location?.localities?.[0]) userUpdates.locality = profile.location.localities[0];
+
+    await User.findByIdAndUpdate(req.user._id, userUpdates);
 
     res.json({
       success: true,
@@ -226,7 +298,8 @@ export const updateMyProfile = async (req, res) => {
       avatar: updatedProfile.avatar
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Unable to update profile.' });
+    console.error('updateMyProfile error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Unable to update profile.' });
   }
 };
 

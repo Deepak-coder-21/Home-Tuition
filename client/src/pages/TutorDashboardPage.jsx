@@ -70,6 +70,30 @@ const SAMPLE_AVATARS = [
   "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80"
 ];
 
+const sanitizeTutorProfile = (tutor) => ({
+  name: tutor?.name || '',
+  tagline: tutor?.tagline || 'Qualified Home & Online Educator',
+  avatar: tutor?.avatar || SAMPLE_AVATARS[0],
+  qualification: tutor?.qualification || 'Certified Educator',
+  experienceYears: Number(tutor?.experienceYears) >= 0 ? Number(tutor?.experienceYears) : 3,
+  location: {
+    state: tutor?.location?.state || 'Delhi NCR',
+    city: tutor?.location?.city || 'New Delhi',
+    localities: Array.isArray(tutor?.location?.localities) ? tutor?.location?.localities : [],
+    pincodes: Array.isArray(tutor?.location?.pincodes) ? tutor?.location?.pincodes : []
+  },
+  modes: Array.isArray(tutor?.modes) && tutor.modes.length > 0 ? tutor.modes : ['home_visit', 'online'],
+  subjects: Array.isArray(tutor?.subjects) ? tutor.subjects : ['Mathematics'],
+  classes: Array.isArray(tutor?.classes) ? tutor.classes : ['Class 9 - 10 (Secondary)'],
+  boards: Array.isArray(tutor?.boards) ? tutor.boards : ['CBSE'],
+  rates: {
+    monthly: Number(tutor?.rates?.monthly) >= 0 ? Number(tutor?.rates?.monthly) : (Number(tutor?.rates?.hourly) ? Number(tutor.rates.hourly) * 12 : 7000),
+    hourly: Number(tutor?.rates?.hourly) >= 0 ? Number(tutor?.rates?.hourly) : (Number(tutor?.rates?.monthly) ? Math.round(Number(tutor.rates.monthly) / 12) : 583)
+  },
+  bio: tutor?.bio || '',
+  achievements: Array.isArray(tutor?.achievements) ? tutor.achievements : []
+});
+
 export default function TutorDashboardPage() {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -137,7 +161,7 @@ export default function TutorDashboardPage() {
           setRealTutorProfile(data.tutor);
           setProfileForm(prev => ({
             ...prev,
-            ...data.tutor
+            ...sanitizeTutorProfile(data.tutor)
           }));
           if (data.tutor.avatar) {
             dispatch(updateUserAvatar({
@@ -262,8 +286,10 @@ export default function TutorDashboardPage() {
   }, [messages, serverNotices, dismissedMsgIds, myTutorProfile?.id]);
 
   const [activeTab, setActiveTab] = useState(() => urlTab || 'inbox'); // 'inbox' | 'verification' | 'profile' | 'service_areas' | 'reviews'
-  const [profileForm, setProfileForm] = useState({ ...myTutorProfile });
+  const [profileForm, setProfileForm] = useState(() => sanitizeTutorProfile(myTutorProfile));
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
@@ -473,13 +499,14 @@ export default function TutorDashboardPage() {
   };
 
   useEffect(() => {
-    if (myTutorProfile) {
+    if (myTutorProfile && !realTutorProfile) {
       setProfileForm(prev => ({
         ...prev,
+        ...sanitizeTutorProfile(myTutorProfile),
         avatar: myTutorProfile.avatar || prev.avatar
       }));
     }
-  }, [myTutorProfile?.id, myTutorProfile?.avatar]);
+  }, [myTutorProfile?.id, myTutorProfile?._id, realTutorProfile]);
 
   const [isAvatarSaving, setIsAvatarSaving] = useState(false);
   const [avatarSaveFeedback, setAvatarSaveFeedback] = useState('');
@@ -610,10 +637,39 @@ export default function TutorDashboardPage() {
   const pendingCount = tutorInquiries.filter(i => i.status === 'pending').length;
 
   const handleProfileSave = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setIsSaving(true);
+    setSaveError('');
+    setSaveSuccess(false);
+
     try {
       const token = localStorage.getItem('vidyanest_token');
+      const monthlyRate = Number(profileForm.rates?.monthly) >= 0 ? Number(profileForm.rates.monthly) : 0;
+      const hourlyRate = monthlyRate > 0 ? Math.round(monthlyRate / 12) : (Number(profileForm.rates?.hourly) || 0);
+
+      const payload = {
+        name: profileForm.name?.trim() || myTutorProfile?.name || 'Educator',
+        tagline: profileForm.tagline?.trim() || 'Qualified Home & Online Educator',
+        avatar: profileForm.avatar || myTutorProfile?.avatar,
+        qualification: profileForm.qualification || 'Certified Educator',
+        experienceYears: Number(profileForm.experienceYears) >= 0 ? Number(profileForm.experienceYears) : 0,
+        location: {
+          state: profileForm.location?.state?.trim() || 'Delhi NCR',
+          city: profileForm.location?.city?.trim() || 'New Delhi',
+          localities: Array.isArray(profileForm.location?.localities) ? profileForm.location.localities : [],
+          pincodes: Array.isArray(profileForm.location?.pincodes) ? profileForm.location.pincodes : []
+        },
+        modes: Array.isArray(profileForm.modes) && profileForm.modes.length > 0 ? profileForm.modes : ['home_visit', 'online'],
+        subjects: Array.isArray(profileForm.subjects) ? profileForm.subjects : ['Mathematics'],
+        classes: Array.isArray(profileForm.classes) ? profileForm.classes : ['Class 9 - 10 (Secondary)'],
+        boards: Array.isArray(profileForm.boards) ? profileForm.boards : ['CBSE'],
+        rates: {
+          monthly: monthlyRate,
+          hourly: hourlyRate
+        },
+        bio: profileForm.bio || ''
+      };
+
       if (token) {
         const res = await fetch('/api/tutors/profile', {
           method: 'PUT',
@@ -621,67 +677,78 @@ export default function TutorDashboardPage() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify(profileForm)
+          body: JSON.stringify(payload)
         });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.tutor) {
-            setRealTutorProfile(data.tutor);
-            setProfileForm(prev => ({ ...prev, ...data.tutor }));
-            if (data.tutor.avatar) {
-              dispatch(updateUserAvatar({
-                avatar: data.tutor.avatar,
-                id: currentUser?._id || currentUser?.id
-              }));
-            }
-            dispatch(updateTutorProfile({
-              id: data.tutor._id || data.tutor.id,
-              updates: data.tutor
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          throw new Error(data.message || 'Server rejected profile update.');
+        }
+
+        if (data.tutor) {
+          setRealTutorProfile(data.tutor);
+          setProfileForm(prev => ({ ...prev, ...sanitizeTutorProfile(data.tutor) }));
+          if (data.tutor.avatar) {
+            dispatch(updateUserAvatar({
+              avatar: data.tutor.avatar,
+              id: currentUser?._id || currentUser?.id
             }));
           }
+          dispatch(updateTutorProfile({
+            id: data.tutor._id || data.tutor.id,
+            updates: data.tutor
+          }));
         }
+      } else {
+        dispatch(updateTutorProfile({
+          id: myTutorProfile?.id || myTutorProfile?._id,
+          updates: payload
+        }));
       }
-      dispatch(updateTutorProfile({
-        id: myTutorProfile?.id || myTutorProfile?._id,
-        updates: profileForm
-      }));
+
       setSaveSuccess(true);
+      setSaveError('');
       setTimeout(() => setSaveSuccess(false), 5000);
-    } catch {
-      // quiet fallback
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 5000);
+    } catch (err) {
+      console.error('handleProfileSave error:', err);
+      setSaveError(err.message || 'Failed to save changes. Please check all fields and try again.');
+      setTimeout(() => setSaveError(''), 6000);
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleToggleSubject = (sub) => {
-    const subjects = profileForm.subjects.includes(sub)
-      ? profileForm.subjects.filter(s => s !== sub)
-      : [...profileForm.subjects, sub];
-    setProfileForm({ ...profileForm, subjects });
+    const list = Array.isArray(profileForm.subjects) ? profileForm.subjects : [];
+    const subjects = list.includes(sub)
+      ? list.filter(s => s !== sub)
+      : [...list, sub];
+    setProfileForm(prev => ({ ...prev, subjects }));
   };
 
   const handleToggleBoard = (board) => {
-    const boards = profileForm.boards.includes(board)
-      ? profileForm.boards.filter(b => b !== board)
-      : [...profileForm.boards, board];
-    setProfileForm({ ...profileForm, boards });
+    const list = Array.isArray(profileForm.boards) ? profileForm.boards : [];
+    const boards = list.includes(board)
+      ? list.filter(b => b !== board)
+      : [...list, board];
+    setProfileForm(prev => ({ ...prev, boards }));
   };
 
   const handleToggleClass = (cls) => {
-    const classes = profileForm.classes.includes(cls)
-      ? profileForm.classes.filter(c => c !== cls)
-      : [...profileForm.classes, cls];
-    setProfileForm({ ...profileForm, classes });
+    const list = Array.isArray(profileForm.classes) ? profileForm.classes : [];
+    const classes = list.includes(cls)
+      ? list.filter(c => c !== cls)
+      : [...list, cls];
+    setProfileForm(prev => ({ ...prev, classes }));
   };
 
   const handleToggleMode = (modeId) => {
-    const modes = profileForm.modes.includes(modeId)
-      ? profileForm.modes.filter(m => m !== modeId)
-      : [...profileForm.modes, modeId];
-    setProfileForm({ ...profileForm, modes });
+    const list = Array.isArray(profileForm.modes) ? profileForm.modes : [];
+    const modes = list.includes(modeId)
+      ? list.filter(m => m !== modeId)
+      : [...list, modeId];
+    setProfileForm(prev => ({ ...prev, modes }));
   };
 
   const handleOpenActionDialog = (inquiry, status) => {
@@ -752,7 +819,28 @@ export default function TutorDashboardPage() {
         </div>
       )}
 
-      {/* Dynamic Console Branding & Educator Portal Header */}
+      {/* Prominent Global Floating Save Error Toast Notification */}
+      {saveError && (
+        <div className="fixed top-20 right-4 sm:right-8 z-50 p-4 bg-stone-900/95 text-white border-2 border-rose-500 rounded-2xl shadow-2xl flex items-center gap-3.5 text-xs max-w-md w-[calc(100%-2rem)] sm:w-auto animate-in fade-in slide-in-from-top-4 backdrop-blur-md">
+          <div className="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-400 flex items-center justify-center shrink-0">
+            <AlertCircle className="w-6 h-6" />
+          </div>
+          <div className="flex-1 pr-2">
+            <div className="font-bold text-sm text-white">Save Failed</div>
+            <div className="text-rose-300 font-medium text-[11px] mt-0.5">
+              {saveError}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSaveError('')}
+            className="p-1.5 text-stone-400 hover:text-white rounded-lg hover:bg-stone-800 transition cursor-pointer"
+            aria-label="Close error notification"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
       <div className="bg-gradient-to-r from-stone-950 via-brand-950 to-stone-900 rounded-3xl p-4 sm:p-6 md:p-7 text-white shadow-soft flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 border border-brand-900/60">
         <div className="space-y-1 min-w-0">
           <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-[11px] sm:text-xs font-bold border border-amber-400/30 whitespace-nowrap shadow-2xs">
@@ -2040,6 +2128,13 @@ export default function TutorDashboardPage() {
             </div>
           )}
 
+          {saveError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-bold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{saveError}</span>
+            </div>
+          )}
+
           {/* Profile Photo Editor Card */}
           <div className="p-4 sm:p-5 rounded-2xl bg-warm-50/80 border border-warm-200 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
@@ -2325,7 +2420,7 @@ export default function TutorDashboardPage() {
           <div className="space-y-3 p-4 bg-stone-50/70 rounded-2xl border border-stone-200">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-bold text-stone-900">
-                Subjects Taught ({profileForm.subjects.length} selected)
+                Subjects Taught ({(profileForm.subjects || []).length} selected)
               </label>
               <span className="text-[11px] text-stone-500">Click to add/remove</span>
             </div>
@@ -2337,7 +2432,7 @@ export default function TutorDashboardPage() {
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {SUBJECTS_LIST.slice(0, 6).map((sub) => {
-                  const isChecked = profileForm.subjects.includes(sub);
+                  const isChecked = (profileForm.subjects || []).includes(sub);
                   return (
                     <button
                       type="button"
@@ -2363,7 +2458,7 @@ export default function TutorDashboardPage() {
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {SUBJECTS_LIST.slice(6).map((sub) => {
-                  const isChecked = profileForm.subjects.includes(sub);
+                  const isChecked = (profileForm.subjects || []).includes(sub);
                   return (
                     <button
                       type="button"
@@ -2388,7 +2483,7 @@ export default function TutorDashboardPage() {
             <label className="block text-xs font-bold text-stone-700">Boards Supported</label>
             <div className="flex flex-wrap gap-2">
               {BOARDS_LIST.map((board) => {
-                const isChecked = profileForm.boards.includes(board);
+                const isChecked = (profileForm.boards || []).includes(board);
                 return (
                   <button
                     type="button"
@@ -2574,6 +2669,12 @@ export default function TutorDashboardPage() {
                   <span>Profile updated successfully!</span>
                 </div>
               )}
+              {saveError && (
+                <div className="text-rose-700 bg-rose-50 border border-rose-200 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                  <span>{saveError}</span>
+                </div>
+              )}
               <button
                 type="submit"
                 disabled={isSaving}
@@ -2611,18 +2712,47 @@ export default function TutorDashboardPage() {
             </div>
             <button
               type="submit"
-              className="w-full sm:w-auto justify-center px-5 py-2.5 bg-brand-800 hover:bg-brand-900 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-1.5 cursor-pointer"
+              disabled={isSaving}
+              className="w-full sm:w-auto justify-center px-5 py-2.5 bg-brand-800 hover:bg-brand-900 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
             >
-              <Save className="w-4 h-4" />
-              <span>Save Area Details</span>
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : saveSuccess ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-300" />
+                  <span>Saved!</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>Save Area Details</span>
+                </>
+              )}
             </button>
           </div>
+
+          {saveSuccess && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Service areas & modes updated successfully!</span>
+            </div>
+          )}
+
+          {saveError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-bold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{saveError}</span>
+            </div>
+          )}
 
           <div className="space-y-3">
             <label className="block text-xs font-bold text-stone-700">Accepted Teaching Modes</label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {TEACHING_MODES.map((mode) => {
-                const isSelected = profileForm.modes.includes(mode.id);
+                const isSelected = (profileForm.modes || []).includes(mode.id);
                 return (
                   <div
                     key={mode.id}
@@ -2800,7 +2930,7 @@ export default function TutorDashboardPage() {
                       .filter(place => !villageSearchTerm || place.toLowerCase().includes(villageSearchTerm.toLowerCase().trim()))
                       .slice(0, 100)
                       .map((place) => {
-                        const isChecked = profileForm.location?.localities?.includes(place);
+                        const isChecked = (profileForm.location?.localities || []).includes(place);
                         return (
                           <button
                             type="button"
@@ -2854,6 +2984,12 @@ export default function TutorDashboardPage() {
                 <div className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 animate-in fade-in">
                   <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Area details updated successfully!</span>
+                </div>
+              )}
+              {saveError && (
+                <div className="text-rose-700 bg-rose-50 border border-rose-200 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                  <span>{saveError}</span>
                 </div>
               )}
               <button
