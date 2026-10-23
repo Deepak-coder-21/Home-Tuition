@@ -200,7 +200,13 @@ export const updateMyProfile = async (req, res) => {
 
     allowedUpdates.forEach((field) => {
       if (req.body[field] !== undefined) {
-        profile[field] = req.body[field];
+        if (field === 'rates') {
+          const monthly = Number(req.body.rates?.monthly) >= 0 ? Number(req.body.rates.monthly) : (profile.rates?.monthly || 0);
+          const hourly = Number(req.body.rates?.hourly) >= 0 ? Number(req.body.rates.hourly) : (monthly ? Math.round(monthly / 12) : 0);
+          profile.rates = { monthly, hourly };
+        } else {
+          profile[field] = req.body[field];
+        }
       }
     });
 

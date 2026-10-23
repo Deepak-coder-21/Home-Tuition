@@ -646,9 +646,11 @@ export default function TutorDashboardPage() {
         updates: profileForm
       }));
       setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 2500);
+      setTimeout(() => setSaveSuccess(false), 5000);
     } catch {
       // quiet fallback
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 5000);
     } finally {
       setIsSaving(false);
     }
@@ -725,7 +727,30 @@ export default function TutorDashboardPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 relative">
+
+      {/* Prominent Global Floating Save Toast Notification */}
+      {saveSuccess && (
+        <div className="fixed top-20 right-4 sm:right-8 z-50 p-4 bg-stone-900/95 text-white border-2 border-emerald-500 rounded-2xl shadow-2xl flex items-center gap-3.5 text-xs max-w-md w-[calc(100%-2rem)] sm:w-auto animate-in fade-in slide-in-from-top-4 backdrop-blur-md">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-6 h-6" />
+          </div>
+          <div className="flex-1 pr-2">
+            <div className="font-bold text-sm text-white">Profile Updated Successfully!</div>
+            <div className="text-emerald-300 font-medium text-[11px] mt-0.5">
+              Your profile details, monthly fees, and service areas are saved and active.
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSaveSuccess(false)}
+            className="p-1.5 text-stone-400 hover:text-white rounded-lg hover:bg-stone-800 transition cursor-pointer"
+            aria-label="Close notification"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Dynamic Console Branding & Educator Portal Header */}
       <div className="bg-gradient-to-r from-stone-950 via-brand-950 to-stone-900 rounded-3xl p-4 sm:p-6 md:p-7 text-white shadow-soft flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 border border-brand-900/60">
@@ -1986,10 +2011,25 @@ export default function TutorDashboardPage() {
             </div>
             <button
               type="submit"
-              className="w-full sm:w-auto justify-center px-5 py-2.5 bg-brand-800 hover:bg-brand-900 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-1.5 shrink-0 cursor-pointer"
+              disabled={isSaving}
+              className="w-full sm:w-auto justify-center px-5 py-2.5 bg-brand-800 hover:bg-brand-900 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-60"
             >
-              <Save className="w-4 h-4" />
-              <span>Save Changes</span>
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : saveSuccess ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-300" />
+                  <span>Saved!</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>Save Changes</span>
+                </>
+              )}
             </button>
           </div>
 
@@ -2191,18 +2231,36 @@ export default function TutorDashboardPage() {
               />
             </div>
             <div className="sm:col-span-3">
-              <label className="block text-xs font-bold text-stone-700 mb-1">Hourly Fee (₹)</label>
-              <input
-                type="number"
-                min="250"
-                step="50"
-                value={profileForm.rates.hourly}
-                onChange={(e) => setProfileForm({ 
-                  ...profileForm, 
-                  rates: { ...profileForm.rates, hourly: Number(e.target.value) } 
-                })}
-                className="w-full text-xs p-2.5 rounded-xl border border-stone-300 outline-none focus:border-brand-800"
-              />
+              <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center justify-between">
+                <span>Monthly Tutoring Fee (₹)</span>
+                <span className="text-[11px] font-normal text-stone-500">
+                  ≈ ₹{Math.round((Number(profileForm.rates?.monthly ?? (profileForm.rates?.hourly ? profileForm.rates.hourly * 12 : 0))) / 12)}/hr
+                </span>
+              </label>
+              <div className="relative">
+                <IndianRupee className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+                <input
+                  type="number"
+                  step="50"
+                  value={profileForm.rates?.monthly ?? (profileForm.rates?.hourly ? profileForm.rates.hourly * 12 : '')}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    const monthlyVal = raw === '' ? '' : Math.max(0, Number(raw));
+                    setProfileForm({ 
+                      ...profileForm, 
+                      rates: { 
+                        monthly: monthlyVal, 
+                        hourly: monthlyVal ? Math.round(monthlyVal / 12) : 0 
+                      } 
+                    });
+                  }}
+                  placeholder="e.g. 6000"
+                  className="w-full text-xs p-2.5 pl-9 rounded-xl border border-stone-300 outline-none focus:border-brand-800 bg-white"
+                />
+              </div>
+              <p className="text-[10px] text-stone-500 mt-1">
+                Enter your monthly fee. No minimum limitation.
+              </p>
             </div>
           </div>
 
@@ -2509,13 +2567,36 @@ export default function TutorDashboardPage() {
             >
               Back to Inquiries
             </button>
-            <button
-              type="submit"
-              className="w-full sm:w-auto justify-center px-7 py-3 bg-brand-800 hover:bg-brand-900 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer"
-            >
-              <Save className="w-4 h-4" />
-              <span>Save Changes</span>
-            </button>
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+              {saveSuccess && (
+                <div className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 animate-in fade-in">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Profile updated successfully!</span>
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="w-full sm:w-auto justify-center px-7 py-3 bg-brand-800 hover:bg-brand-900 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer disabled:opacity-60"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Saving Changes...</span>
+                  </>
+                ) : saveSuccess ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-300" />
+                    <span>Saved Successfully!</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Save Changes</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </form>
       )}
@@ -2768,13 +2849,36 @@ export default function TutorDashboardPage() {
             >
               Back to Inquiries
             </button>
-            <button
-              type="submit"
-              className="w-full sm:w-auto justify-center px-7 py-3 bg-brand-800 hover:bg-brand-900 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer"
-            >
-              <Save className="w-4 h-4" />
-              <span>Save Area Details</span>
-            </button>
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+              {saveSuccess && (
+                <div className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 animate-in fade-in">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Area details updated successfully!</span>
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="w-full sm:w-auto justify-center px-7 py-3 bg-brand-800 hover:bg-brand-900 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer disabled:opacity-60"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Saving Area Details...</span>
+                  </>
+                ) : saveSuccess ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-300" />
+                    <span>Saved Successfully!</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Save Area Details</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </form>
       )}

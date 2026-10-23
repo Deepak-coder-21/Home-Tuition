@@ -510,3 +510,60 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ success: false, message: 'Unable to reset password at this time. Please try again shortly.' });
   }
 };
+
+// @desc    Update current logged-in user profile (Student/Parent details)
+// @route   PUT /api/auth/profile
+// @access  Private
+export const updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const allowedUpdates = [
+      'name', 'phone', 'state', 'city', 'locality', 'houseLocation',
+      'studentName', 'studentGrade', 'board', 'avatar'
+    ];
+
+    allowedUpdates.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        user[field] = req.body[field];
+      }
+    });
+
+    await user.save();
+
+    // If user is also a tutor, synchronize name and avatar to TutorProfile
+    if (user.role === 'tutor') {
+      await TutorProfile.findOneAndUpdate(
+        { user: user._id },
+        { name: user.name, ...(user.avatar ? { avatar: user.avatar } : {}) }
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully!',
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        phone: user.phone || '',
+        state: user.state || '',
+        city: user.city || '',
+        locality: user.locality || '',
+        houseLocation: user.houseLocation || '',
+        studentName: user.studentName || '',
+        studentGrade: user.studentGrade || '',
+        board: user.board || ''
+      }
+    });
+  } catch (error) {
+    console.error('updateUserProfile error:', error.message);
+    res.status(500).json({ success: false, message: 'Unable to update profile.' });
+  }
+};
+

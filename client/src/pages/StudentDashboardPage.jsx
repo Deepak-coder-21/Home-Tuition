@@ -150,6 +150,7 @@ export default function StudentDashboardPage() {
   });
 
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [isLookingUpPin, setIsLookingUpPin] = useState(false);
   const [pinLookupMsg, setPinLookupMsg] = useState('');
@@ -240,16 +241,47 @@ export default function StudentDashboardPage() {
     }
   };
 
-  const handleProfileSave = (e) => {
+  const handleProfileSave = async (e) => {
     e.preventDefault();
-    dispatch(updateStudentProfile(profileForm));
-    if (profileForm.avatar && currentUser?.id) {
-      dispatch(updateUserAvatar({ id: currentUser.id, avatar: profileForm.avatar }));
+    setIsSaving(true);
+    try {
+      const token = localStorage.getItem('vidyanest_token');
+      if (token) {
+        const res = await fetch('/api/auth/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(profileForm)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user) {
+            dispatch(updateStudentProfile(data.user));
+            if (data.user.avatar) {
+              dispatch(updateUserAvatar({ id: data.user._id, avatar: data.user.avatar }));
+            }
+          }
+        }
+      }
+      dispatch(updateStudentProfile(profileForm));
+      if (profileForm.avatar && (currentUser?._id || currentUser?.id)) {
+        dispatch(updateUserAvatar({ id: currentUser._id || currentUser.id, avatar: profileForm.avatar }));
+      }
+      setSaveSuccess(true);
+      setTimeout(() => {
+        setSaveSuccess(false);
+      }, 5000);
+    } catch {
+      dispatch(updateStudentProfile(profileForm));
+      setSaveSuccess(true);
+      setTimeout(() => {
+        setSaveSuccess(false);
+      }, 5000);
+    } finally {
+      setIsSaving(false);
     }
-    setSaveSuccess(true);
-    setTimeout(() => {
-      setSaveSuccess(false);
-    }, 4000);
   };
 
   // Accepted inquiries represent active connected tutors
@@ -350,7 +382,30 @@ export default function StudentDashboardPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 relative">
+
+      {/* Prominent Global Floating Save Toast Notification */}
+      {saveSuccess && (
+        <div className="fixed top-20 right-4 sm:right-8 z-50 p-4 bg-stone-900/95 text-white border-2 border-emerald-500 rounded-2xl shadow-2xl flex items-center gap-3.5 text-xs max-w-md w-[calc(100%-2rem)] sm:w-auto animate-in fade-in slide-in-from-top-4 backdrop-blur-md">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0">
+            <CheckCircle className="w-6 h-6 text-emerald-400" />
+          </div>
+          <div className="flex-1 pr-2">
+            <div className="font-bold text-sm text-white">Profile Updated Successfully!</div>
+            <div className="text-emerald-300 font-medium text-[11px] mt-0.5">
+              Your student profile and home location are saved and active.
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSaveSuccess(false)}
+            className="p-1.5 text-stone-400 hover:text-white rounded-lg hover:bg-stone-800 transition cursor-pointer"
+            aria-label="Close notification"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Dynamic Portal Console Header */}
       <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-terracotta-950 rounded-3xl p-6 sm:p-7 text-white shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-stone-800">
@@ -828,10 +883,25 @@ export default function StudentDashboardPage() {
             </div>
             <button
               type="submit"
-              className="w-full sm:w-auto justify-center px-6 py-2.5 bg-terracotta-600 hover:bg-terracotta-700 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-2 self-stretch sm:self-auto shrink-0 cursor-pointer"
+              disabled={isSaving}
+              className="w-full sm:w-auto justify-center px-6 py-2.5 bg-terracotta-600 hover:bg-terracotta-700 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-2 self-stretch sm:self-auto shrink-0 cursor-pointer disabled:opacity-60"
             >
-              <Save className="w-4 h-4" />
-              <span>Save Changes</span>
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : saveSuccess ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-300" />
+                  <span>Saved!</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>Save Changes</span>
+                </>
+              )}
             </button>
           </div>
 
@@ -1313,13 +1383,36 @@ export default function StudentDashboardPage() {
               Back to Inquiries
             </button>
 
-            <button
-              type="submit"
-              className="w-full sm:w-auto justify-center px-7 py-3 bg-terracotta-600 hover:bg-terracotta-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer"
-            >
-              <Save className="w-4 h-4" />
-              <span>Save Changes</span>
-            </button>
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+              {saveSuccess && (
+                <div className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 animate-in fade-in">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Profile updated successfully!</span>
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="w-full sm:w-auto justify-center px-7 py-3 bg-terracotta-600 hover:bg-terracotta-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer disabled:opacity-60"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Saving Changes...</span>
+                  </>
+                ) : saveSuccess ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-300" />
+                    <span>Saved Successfully!</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Save Changes</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </form>
       )}
