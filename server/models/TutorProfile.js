@@ -61,7 +61,13 @@ const tutorProfileSchema = new mongoose.Schema({
     state: { type: String, required: true },
     city: { type: String, required: true },
     localities: [{ type: String }],
-    pincodes: [{ type: String }]
+    pincodes: [{ type: String }],
+    pincode: { type: String, trim: true, default: '' }
+  },
+  pincode: {
+    type: String,
+    trim: true,
+    default: ''
   },
   modes: [{
     type: String,
@@ -104,6 +110,29 @@ const tutorProfileSchema = new mongoose.Schema({
   lastDocumentReminderSentAt: {
     type: Date,
     default: null
+  },
+  agreedToPolicy: {
+    type: Boolean,
+    default: false
+  },
+  agreedToPolicyAt: {
+    type: Date,
+    default: null
+  },
+  agreedToPolicyDate: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  agreedToPolicyTime: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  agreedToPolicyFormatted: {
+    type: String,
+    default: '',
+    trim: true
   }
 }, {
   timestamps: true

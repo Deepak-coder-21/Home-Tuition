@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, ShieldCheck, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { useSelector } from 'react-redux';
@@ -41,10 +41,9 @@ export default function PolicyAgreementCheckbox({
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="font-bold text-terracotta-600 hover:text-terracotta-700 underline inline-flex items-center gap-0.5"
+            className="underline text-stone-700 hover:text-stone-900"
           >
-            <span>Terms & Conditions</span>
-            <ExternalLink className="w-2.5 h-2.5" />
+            Terms & Conditions
           </Link>
           <span>, </span>
           <Link
@@ -52,10 +51,9 @@ export default function PolicyAgreementCheckbox({
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="font-bold text-terracotta-600 hover:text-terracotta-700 underline inline-flex items-center gap-0.5"
+            className="underline text-stone-700 hover:text-stone-900"
           >
-            <span>Responsibility Policy</span>
-            <ExternalLink className="w-2.5 h-2.5" />
+            Responsibility Policy
           </Link>
           <span>, and </span>
           <Link
@@ -63,10 +61,9 @@ export default function PolicyAgreementCheckbox({
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="font-bold text-terracotta-600 hover:text-terracotta-700 underline inline-flex items-center gap-0.5"
+            className="underline text-stone-700 hover:text-stone-900"
           >
-            <span>Safety Guidelines</span>
-            <ExternalLink className="w-2.5 h-2.5" />
+            Safety Guidelines
           </Link>
           <span>. I understand this platform connects independent parties and does not employ tutors.</span>
         </label>

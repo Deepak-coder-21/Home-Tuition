@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { login, registerTutor, clearAuthError } from '../store/slices/authSlice';
 import { addNewTutor } from '../store/slices/tutorsSlice';
 import { useLocationData } from '../hooks/useLocationData';
-import { lookupPincode } from '../services/locationService';
+import { lookupPincode, getPincodeLocation } from '../services/locationService';
 import {
   SUBJECTS_LIST,
   CLASSES_LIST,
@@ -108,15 +108,16 @@ export default function TutorAuthPage({ initialMode = 'login' }) {
 
   const handleTutorPinLookup = async (pin) => {
     setTutorPincode(pin);
-    if (/^\d{6}$/.test(pin.trim())) {
+    const cleaned = pin.replace(/\D/g, '').slice(0, 6);
+    if (/^\d{6}$/.test(cleaned)) {
       setIsLookingUpTutorPin(true);
-      const res = await lookupPincode(pin.trim());
+      const loc = await getPincodeLocation(cleaned, tutorLoc.states);
       setIsLookingUpTutorPin(false);
-      if (res && res.state) {
+      if (loc && loc.matchedState) {
         setTutorForm(prev => ({
           ...prev,
-          state: res.state,
-          city: res.district
+          state: loc.matchedState,
+          city: loc.matchedDistrict || loc.district
         }));
       }
     }
@@ -183,12 +184,15 @@ export default function TutorAuthPage({ initialMode = 'login' }) {
           password: tutorForm.password,
           otp: otpCode, // Mandatory verification code
           agreedToPolicy: true, // Mandatory agreement
+          agreedToPolicyAt: new Date().toISOString(),
           phone: tutorForm.phone.trim(),
           tagline: tutorForm.tagline.trim(),
           qualification: tutorForm.qualification,
           experienceYears: Number(tutorForm.experienceYears) || 3,
           state: tutorForm.state,
           city: tutorForm.city,
+          pincode: tutorPincode?.trim() || '',
+          pincodes: tutorPincode?.trim() ? [tutorPincode.trim()] : [],
           localities: tutorForm.localities ? tutorForm.localities.split(',').map(s => s.trim()).filter(Boolean) : [],
           subjects: tutorForm.subjects,
           classes: tutorForm.classes,
@@ -212,6 +216,7 @@ export default function TutorAuthPage({ initialMode = 'login' }) {
         localStorage.setItem('vidyanest_token', data.token);
       }
 
+      const cleanPin = tutorPincode?.trim() || '';
       const newTutorId = data.user?.tutorProfileId || data.user?._id || `tut-${Date.now()}`;
       const newTutorObject = {
         id: newTutorId,
@@ -237,8 +242,10 @@ export default function TutorAuthPage({ initialMode = 'login' }) {
           city: tutorForm.city,
           houseLocation: tutorForm.houseLocation || '',
           localities: tutorForm.localities.split(',').map(s => s.trim()).filter(Boolean),
-          pincodes: []
+          pincodes: cleanPin ? [cleanPin] : [],
+          pincode: cleanPin
         },
+        pincode: cleanPin,
         modes: tutorForm.modes,
         subjects: tutorForm.subjects,
         classes: tutorForm.classes,
@@ -252,7 +259,12 @@ export default function TutorAuthPage({ initialMode = 'login' }) {
           "Newly registered educator on VidyaNest",
           "Comprehensive 1-on-1 personalized teaching methodology"
         ],
-        reviews: []
+        reviews: [],
+        agreedToPolicy: true,
+        agreedToPolicyAt: data.user?.agreedToPolicyAt || new Date().toISOString(),
+        agreedToPolicyDate: data.user?.agreedToPolicyDate || '',
+        agreedToPolicyTime: data.user?.agreedToPolicyTime || '',
+        agreedToPolicyFormatted: data.user?.agreedToPolicyFormatted || ''
       };
 
       dispatch(addNewTutor(newTutorObject));
@@ -262,7 +274,12 @@ export default function TutorAuthPage({ initialMode = 'login' }) {
         _id: data.user?._id || newTutorObject.id,
         password: tutorForm.password,
         phone: tutorForm.phone,
-        email: tutorForm.email
+        email: tutorForm.email,
+        agreedToPolicy: true,
+        agreedToPolicyAt: data.user?.agreedToPolicyAt || newTutorObject.agreedToPolicyAt,
+        agreedToPolicyDate: data.user?.agreedToPolicyDate || '',
+        agreedToPolicyTime: data.user?.agreedToPolicyTime || '',
+        agreedToPolicyFormatted: data.user?.agreedToPolicyFormatted || ''
       }));
       navigate('/tutor/dashboard?tab=verification&welcome=true');
     } catch {

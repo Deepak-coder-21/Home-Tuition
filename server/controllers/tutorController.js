@@ -11,6 +11,7 @@ export const getTutors = async (req, res) => {
   try {
     const { 
       search, 
+      pincode,
       state, 
       city, 
       locality, 
@@ -25,7 +26,7 @@ export const getTutors = async (req, res) => {
 
     let query = {};
 
-    // Free text search across name, bio, qualification, subjects, localities
+    // Free text search across name, bio, qualification, subjects, localities, pincodes
     if (search) {
       const regex = new RegExp(search, 'i');
       query.$or = [
@@ -34,8 +35,28 @@ export const getTutors = async (req, res) => {
         { qualification: regex },
         { subjects: regex },
         { 'location.city': regex },
-        { 'location.localities': regex }
+        { 'location.localities': regex },
+        { 'location.pincodes': regex },
+        { 'location.pincode': regex }
       ];
+    }
+
+    if (pincode) {
+      const pinRegex = new RegExp(pincode.trim(), 'i');
+      const pinCondition = [
+        { 'location.pincodes': pinRegex },
+        { 'location.pincode': pinRegex },
+        { pincode: pinRegex }
+      ];
+      if (query.$or) {
+        query.$and = [
+          { $or: query.$or },
+          { $or: pinCondition }
+        ];
+        delete query.$or;
+      } else {
+        query.$or = pinCondition;
+      }
     }
 
     if (state) query['location.state'] = state;
@@ -126,8 +147,10 @@ export const getMyProfile = async (req, res) => {
           state: req.user.state || 'Delhi NCR',
           city: req.user.city || 'New Delhi',
           localities: [req.user.locality || 'Main'],
-          pincodes: []
+          pincodes: req.user.pincode ? [req.user.pincode] : [],
+          pincode: req.user.pincode || ''
         },
+        pincode: req.user.pincode || '',
         modes: ['home_visit', 'online'],
         subjects: ['Mathematics'],
         classes: ['Class 9 - 10 (Secondary)'],
@@ -244,12 +267,32 @@ export const updateMyProfile = async (req, res) => {
           const hourly = Number(req.body.rates?.hourly) >= 0 ? Number(req.body.rates.hourly) : (monthly ? Math.round(monthly / 12) : 0);
           profile.rates = { monthly, hourly };
         } else if (field === 'location') {
+          let pincodesList = [];
+          const inputPincodes = req.body.location?.pincodes !== undefined ? req.body.location.pincodes : req.body.pincodes;
+          if (Array.isArray(inputPincodes)) {
+            pincodesList = inputPincodes.map(p => String(p).trim()).filter(Boolean);
+          } else if (typeof inputPincodes === 'string' && inputPincodes.trim()) {
+            pincodesList = inputPincodes.split(',').map(p => p.trim()).filter(Boolean);
+          } else if (req.body.location?.pincode || req.body.pincode) {
+            const singlePin = String(req.body.location?.pincode || req.body.pincode).trim();
+            if (singlePin) pincodesList = [singlePin];
+          } else {
+            pincodesList = profile.location?.pincodes || [];
+          }
+
+          const primaryPin = req.body.location?.pincode?.trim() || req.body.pincode?.trim() || pincodesList[0] || profile.location?.pincode || '';
+          if (primaryPin && !pincodesList.includes(primaryPin)) {
+            pincodesList.unshift(primaryPin);
+          }
+
           profile.location = {
             state: req.body.location?.state?.trim() || profile.location?.state || 'Delhi NCR',
             city: req.body.location?.city?.trim() || profile.location?.city || 'New Delhi',
             localities: Array.isArray(req.body.location?.localities) ? req.body.location.localities : (profile.location?.localities || []),
-            pincodes: Array.isArray(req.body.location?.pincodes) ? req.body.location.pincodes : (profile.location?.pincodes || [])
+            pincodes: pincodesList,
+            pincode: primaryPin
           };
+          profile.pincode = primaryPin;
         } else if (field === 'modes') {
           if (Array.isArray(req.body.modes)) {
             const validModes = ['home_visit', 'online', 'tutor_place'];
@@ -289,6 +332,9 @@ export const updateMyProfile = async (req, res) => {
     if (profile.location?.state) userUpdates.state = profile.location.state;
     if (profile.location?.city) userUpdates.city = profile.location.city;
     if (profile.location?.localities?.[0]) userUpdates.locality = profile.location.localities[0];
+    if (profile.location?.pincode || profile.location?.pincodes?.[0]) {
+      userUpdates.pincode = profile.location.pincode || profile.location.pincodes[0];
+    }
 
     await User.findByIdAndUpdate(req.user._id, userUpdates);
 

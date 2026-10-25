@@ -1713,6 +1713,12 @@ export default function AdminDashboardPage({ initialTab }) {
                               <span>Active</span>
                             </span>
                           )}
+                          {(s.agreedToPolicy || s.agreedToPolicyDate || s.agreedToPolicyFormatted) && (
+                            <div className="mt-1 text-[10px] text-stone-500 flex items-center gap-1" title={s.agreedToPolicyFormatted || `Agreed on ${s.agreedToPolicyDate || 'registration'}`}>
+                              <ShieldCheck className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
+                              <span className="truncate max-w-[120px]">{s.agreedToPolicyDate || 'Agreed'}</span>
+                            </div>
+                          )}
                         </td>
 
                         <td className="py-3.5 px-4 text-right">
@@ -3631,6 +3637,14 @@ export default function AdminDashboardPage({ initialTab }) {
                   <div className="text-xs text-stone-500">
                     Parent: <strong className="text-stone-800">{inspectStudent.name}</strong> • Joined: {inspectStudent.joinedDate || '2025-08-14'}
                   </div>
+                  {(inspectStudent.agreedToPolicyFormatted || inspectStudent.agreedToPolicyDate || inspectStudent.agreedToPolicyAt || inspectStudent.agreedToPolicy) && (
+                    <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 text-[11px] font-medium border border-emerald-200">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>
+                        Policy Agreed: {inspectStudent.agreedToPolicyFormatted || (inspectStudent.agreedToPolicyDate ? `${inspectStudent.agreedToPolicyDate} at ${inspectStudent.agreedToPolicyTime}` : (inspectStudent.agreedToPolicyAt ? new Date(inspectStudent.agreedToPolicyAt).toLocaleString('en-IN') : 'Confirmed on registration'))}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
               <button
@@ -3853,6 +3867,14 @@ export default function AdminDashboardPage({ initialTab }) {
                   <div className="text-xs text-stone-500 mt-0.5">
                     {currentAuditingTutor.qualification} • {currentAuditingTutor.experienceYears} Years Exp. • {currentAuditingTutor.location?.city}
                   </div>
+                  {(currentAuditingTutor.agreedToPolicyFormatted || currentAuditingTutor.agreedToPolicyDate || currentAuditingTutor.agreedToPolicyAt || currentAuditingTutor.agreedToPolicy) && (
+                    <div className="mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-[10px] font-medium border border-emerald-200">
+                      <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" />
+                      <span>
+                        Policy Agreed: {currentAuditingTutor.agreedToPolicyFormatted || (currentAuditingTutor.agreedToPolicyDate ? `${currentAuditingTutor.agreedToPolicyDate} at ${currentAuditingTutor.agreedToPolicyTime}` : (currentAuditingTutor.agreedToPolicyAt ? new Date(currentAuditingTutor.agreedToPolicyAt).toLocaleString('en-IN') : 'Confirmed on registration'))}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
               <button 

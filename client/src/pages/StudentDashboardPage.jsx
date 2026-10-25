@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { addTutorReview } from '../store/slices/tutorsSlice';
 import { fetchMyInquiries } from '../store/slices/inquiriesSlice';
 import { updateStudentProfile, updateUserAvatar } from '../store/slices/authSlice';
-import { lookupPincode } from '../services/locationService';
+import { lookupPincode, getPincodeLocation } from '../services/locationService';
 import { CLASSES_LIST, BOARDS_LIST, SUBJECTS_LIST } from '../data/mockData';
 import StarRating from '../components/common/StarRating';
 import ModeBadge from '../components/common/ModeBadge';
@@ -201,15 +201,15 @@ export default function StudentDashboardPage() {
       setIsLookingUpPin(true);
       setPinLookupMsg('Detecting location...');
       try {
-        const res = await lookupPincode(cleaned);
-        if (res && res.state) {
+        const loc = await getPincodeLocation(cleaned);
+        if (loc && loc.matchedState) {
           setProfileForm(prev => ({
             ...prev,
-            state: res.state || prev.state,
-            city: res.district || prev.city,
-            locality: prev.locality ? prev.locality : ((res.places && res.places[0]?.name) || '')
+            state: loc.matchedState || loc.state,
+            city: loc.matchedDistrict || loc.district || prev.city,
+            locality: prev.locality ? prev.locality : ((loc.places && loc.places[0]?.name) || '')
           }));
-          setPinLookupMsg(`Detected: ${res.district || ''}, ${res.state || ''}`);
+          setPinLookupMsg(`Detected: ${loc.matchedDistrict || loc.district}, ${loc.matchedState || loc.state}`);
         } else {
           setPinLookupMsg('');
         }
@@ -540,8 +540,16 @@ export default function StudentDashboardPage() {
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 text-[11px] font-semibold mb-1">
-              <span>Parent / Student Account</span>
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 text-[11px] font-semibold">
+                <span>Parent / Student Account</span>
+              </div>
+              {(currentUser?.agreedToPolicyFormatted || currentUser?.agreedToPolicyDate) && (
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-medium" title={currentUser.agreedToPolicyFormatted || `Agreed on ${currentUser.agreedToPolicyDate}`}>
+                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                  <span>Policy Agreed: {currentUser.agreedToPolicyDate}</span>
+                </div>
+              )}
             </div>
             <h1 className="font-serif text-xl sm:text-3xl font-bold text-stone-900 truncate">
               {currentUser?.name || 'Vikram Verma'}

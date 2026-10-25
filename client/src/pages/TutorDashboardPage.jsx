@@ -6,7 +6,7 @@ import { updateInquiryStatus, fetchMyInquiries, respondToInquiry } from '../stor
 import { updateUserAvatar } from '../store/slices/authSlice';
 import ChangeAvatarModal from '../components/tutor/ChangeAvatarModal';
 import { useLocationData } from '../hooks/useLocationData';
-import { getLiveDistricts, lookupPincode } from '../services/locationService';
+import { getLiveDistricts, lookupPincode, getPincodeLocation } from '../services/locationService';
 import { sanitizeErrorMessage } from '../utils/validation';
 import { 
   SUBJECTS_LIST, 
@@ -80,8 +80,12 @@ const sanitizeTutorProfile = (tutor) => ({
     state: tutor?.location?.state || 'Delhi NCR',
     city: tutor?.location?.city || 'New Delhi',
     localities: Array.isArray(tutor?.location?.localities) ? tutor?.location?.localities : [],
-    pincodes: Array.isArray(tutor?.location?.pincodes) ? tutor?.location?.pincodes : []
+    pincodes: Array.isArray(tutor?.location?.pincodes) && tutor.location.pincodes.length > 0 
+      ? tutor.location.pincodes 
+      : (tutor?.location?.pincode ? [tutor.location.pincode] : (tutor?.pincode ? [tutor.pincode] : [])),
+    pincode: tutor?.location?.pincode || tutor?.pincode || tutor?.location?.pincodes?.[0] || ''
   },
+  pincode: tutor?.location?.pincode || tutor?.pincode || tutor?.location?.pincodes?.[0] || '',
   modes: Array.isArray(tutor?.modes) && tutor.modes.length > 0 ? tutor.modes : ['home_visit', 'online'],
   subjects: Array.isArray(tutor?.subjects) ? tutor.subjects : ['Mathematics'],
   classes: Array.isArray(tutor?.classes) ? tutor.classes : ['Class 9 - 10 (Secondary)'],
@@ -134,7 +138,14 @@ export default function TutorDashboardPage() {
     verificationStatus: 'unverified',
     verificationDetails: { idProof: 'Pending Upload', degreeProof: 'Pending Upload', addressProof: 'Pending Upload' },
     verificationDocuments: [],
-    location: { state: currentUser.state || 'Delhi NCR', city: currentUser.city || 'New Delhi', localities: [currentUser.locality || 'Main'], pincodes: [] },
+    location: { 
+      state: currentUser.state || 'Delhi NCR', 
+      city: currentUser.city || 'New Delhi', 
+      localities: [currentUser.locality || 'Main'], 
+      pincodes: currentUser.pincode ? [currentUser.pincode] : [],
+      pincode: currentUser.pincode || ''
+    },
+    pincode: currentUser.pincode || '',
     modes: ['home_visit', 'online'],
     subjects: ['Mathematics'],
     classes: ['Class 9 - 10 (Secondary)'],
@@ -163,6 +174,10 @@ export default function TutorDashboardPage() {
             ...prev,
             ...sanitizeTutorProfile(data.tutor)
           }));
+          const existingPin = data.tutor.location?.pincodes?.[0] || data.tutor.location?.pincode || data.tutor.pincode || currentUser?.pincode || '';
+          if (existingPin) {
+            setDashboardPincode(existingPin);
+          }
           if (data.tutor.avatar) {
             dispatch(updateUserAvatar({
               avatar: data.tutor.avatar,
@@ -481,20 +496,28 @@ export default function TutorDashboardPage() {
 
   const handleDashboardPinLookup = async (pin) => {
     setDashboardPincode(pin);
-    if (/^\d{6}$/.test(pin.trim())) {
+    const cleaned = pin.replace(/\D/g, '').slice(0, 6);
+    if (/^\d{6}$/.test(cleaned)) {
       setIsLookingUpDashPin(true);
-      const res = await lookupPincode(pin.trim());
+      const loc = await getPincodeLocation(cleaned, serviceLoc.states);
       setIsLookingUpDashPin(false);
-      if (res && res.state) {
-        setProfileForm(prev => ({
+      setProfileForm(prev => {
+        const currentPins = Array.isArray(prev.location?.pincodes) ? [...prev.location.pincodes] : [];
+        if (!currentPins.includes(cleaned)) {
+          currentPins.unshift(cleaned);
+        }
+        return {
           ...prev,
+          pincode: cleaned,
           location: {
             ...prev.location,
-            state: res.state,
-            city: res.district
+            state: loc?.matchedState || prev.location?.state,
+            city: loc?.matchedDistrict || loc?.district || prev.location?.city,
+            pincodes: currentPins,
+            pincode: cleaned
           }
-        }));
-      }
+        };
+      });
     }
   };
 
@@ -505,6 +528,10 @@ export default function TutorDashboardPage() {
         ...sanitizeTutorProfile(myTutorProfile),
         avatar: myTutorProfile.avatar || prev.avatar
       }));
+      const existingPin = myTutorProfile.location?.pincodes?.[0] || myTutorProfile.location?.pincode || myTutorProfile.pincode || currentUser?.pincode || '';
+      if (existingPin) {
+        setDashboardPincode(existingPin);
+      }
     }
   }, [myTutorProfile?.id, myTutorProfile?._id, realTutorProfile]);
 
@@ -656,9 +683,12 @@ export default function TutorDashboardPage() {
         location: {
           state: profileForm.location?.state?.trim() || 'Delhi NCR',
           city: profileForm.location?.city?.trim() || 'New Delhi',
-          localities: Array.isArray(profileForm.location?.localities) ? profileForm.location.localities : [],
-          pincodes: Array.isArray(profileForm.location?.pincodes) ? profileForm.location.pincodes : []
+          pincodes: Array.isArray(profileForm.location?.pincodes) && profileForm.location.pincodes.length > 0
+            ? profileForm.location.pincodes
+            : (dashboardPincode?.trim() ? [dashboardPincode.trim()] : []),
+          pincode: dashboardPincode?.trim() || profileForm.location?.pincodes?.[0] || profileForm.location?.pincode || ''
         },
+        pincode: dashboardPincode?.trim() || profileForm.location?.pincodes?.[0] || profileForm.location?.pincode || '',
         modes: Array.isArray(profileForm.modes) && profileForm.modes.length > 0 ? profileForm.modes : ['home_visit', 'online'],
         subjects: Array.isArray(profileForm.subjects) ? profileForm.subjects : ['Mathematics'],
         classes: Array.isArray(profileForm.classes) ? profileForm.classes : ['Class 9 - 10 (Secondary)'],
@@ -2788,19 +2818,73 @@ export default function TutorDashboardPage() {
             </div>
 
             {/* Quick 6-digit PIN Code Lookup */}
-            <div>
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-2.5" />
+            <div className="space-y-2.5">
+              <div>
+                <label className="block text-xs font-bold text-stone-700 mb-1">
+                  Primary PIN Code (Auto-detects State & District)
+                </label>
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={dashboardPincode}
+                    onChange={(e) => handleDashboardPinLookup(e.target.value)}
+                    placeholder="Enter 6-digit PIN code to auto-set State & District (e.g. 560034, 110001)"
+                    className="w-full pl-9 pr-8 py-2 text-xs rounded-xl border border-stone-300 bg-white outline-none focus:border-brand-800"
+                  />
+                  {isLookingUpDashPin && (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-800 absolute right-3 top-2.5" />
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 mb-1">
+                  Covered / Serviced PIN Codes (Comma-separated for home visits)
+                </label>
                 <input
                   type="text"
-                  maxLength={6}
-                  value={dashboardPincode}
-                  onChange={(e) => handleDashboardPinLookup(e.target.value)}
-                  placeholder="Enter 6-digit PIN code to auto-set State & District (e.g. 560034, 110001)"
-                  className="w-full pl-9 pr-8 py-2 text-xs rounded-xl border border-stone-300 bg-white outline-none focus:border-brand-800"
+                  value={profileForm.location?.pincodes?.join(', ') || ''}
+                  onChange={(e) => {
+                    const rawPins = e.target.value.split(',').map(p => p.trim().replace(/\D/g, '')).filter(Boolean);
+                    setProfileForm(prev => ({
+                      ...prev,
+                      location: {
+                        ...prev.location,
+                        pincodes: rawPins,
+                        pincode: rawPins[0] || prev.location?.pincode || ''
+                      }
+                    }));
+                  }}
+                  placeholder="e.g. 110001, 110016, 110048"
+                  className="w-full pl-3 pr-3 py-2 text-xs rounded-xl border border-stone-300 bg-white outline-none focus:border-brand-800"
                 />
-                {isLookingUpDashPin && (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-800 absolute right-3 top-2.5" />
+                {profileForm.location?.pincodes && profileForm.location.pincodes.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-1.5">
+                    {profileForm.location.pincodes.map((pin, pIdx) => (
+                      <span key={pIdx} className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-50 text-brand-800 border border-brand-200">
+                        PIN: {pin}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = profileForm.location.pincodes.filter((_, i) => i !== pIdx);
+                            setProfileForm(prev => ({
+                              ...prev,
+                              location: {
+                                ...prev.location,
+                                pincodes: updated,
+                                pincode: updated[0] || ''
+                              }
+                            }));
+                          }}
+                          className="text-stone-400 hover:text-stone-700 font-bold ml-0.5"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>

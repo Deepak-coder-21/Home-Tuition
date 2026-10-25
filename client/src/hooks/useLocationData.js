@@ -6,7 +6,10 @@ import {
   getInitialStates, 
   getInitialDistricts, 
   getInitialPlaces,
-  lookupPincode
+  lookupPincode,
+  getPincodeLocation,
+  matchStateOption,
+  matchDistrictOption
 } from '../services/locationService';
 
 /**
@@ -80,6 +83,9 @@ export function useLocationData(selectedState = '', selectedDistrict = '') {
     isLoadingDistricts,
     isLoadingPlaces,
     isLiveApi,
-    lookupPincode
+    lookupPincode,
+    getPincodeLocation,
+    matchStateOption,
+    matchDistrictOption
   };
 }

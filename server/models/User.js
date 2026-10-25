@@ -105,7 +105,23 @@ const userSchema = new mongoose.Schema({
     default: false
   },
   agreedToPolicyAt: {
-    type: Date
+    type: Date,
+    default: null
+  },
+  agreedToPolicyDate: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  agreedToPolicyTime: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  agreedToPolicyFormatted: {
+    type: String,
+    default: '',
+    trim: true
   }
 }, {
   timestamps: true

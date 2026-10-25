@@ -112,6 +112,7 @@ export const registerUser = async (req, res) => {
       locality, 
       houseLocation,
       pincode,
+      pincodes,
       landmark,
       studentName, 
       studentGrade, 
@@ -188,6 +189,38 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'A user with this email already exists. Please log in.' });
     }
 
+    // Robust parsing for pincode / pincodes
+    let resolvedPincodes = [];
+    if (Array.isArray(pincodes)) {
+      resolvedPincodes = pincodes.map(p => String(p).trim()).filter(Boolean);
+    } else if (typeof pincodes === 'string' && pincodes.trim()) {
+      resolvedPincodes = pincodes.split(',').map(p => p.trim()).filter(Boolean);
+    } else if (pincode && String(pincode).trim()) {
+      resolvedPincodes = [String(pincode).trim()];
+    }
+
+    const resolvedPincode = (pincode && String(pincode).trim()) || resolvedPincodes[0] || '';
+    if (resolvedPincode && !resolvedPincodes.includes(resolvedPincode)) {
+      resolvedPincodes.unshift(resolvedPincode);
+    }
+
+    // Robust date & time capture for policy agreement audit record
+    const agreementDateObj = req.body.agreedToPolicyAt ? new Date(req.body.agreedToPolicyAt) : new Date();
+    const agreedDate = agreementDateObj.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      timeZone: 'Asia/Kolkata'
+    });
+    const agreedTime = agreementDateObj.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Kolkata'
+    });
+    const agreedFormatted = `${agreedDate} at ${agreedTime} (IST)`;
+
     // 1. Create Base User
     const user = await User.create({
       name: name?.trim() || 'VidyaNest User',
@@ -199,7 +232,7 @@ export const registerUser = async (req, res) => {
       city: city || '',
       locality: locality || '',
       houseLocation: houseLocation?.trim() || '',
-      pincode: pincode?.trim() || '',
+      pincode: resolvedPincode,
       landmark: landmark?.trim() || '',
       studentName: studentName?.trim() || '',
       studentGrade: studentGrade || '',
@@ -209,7 +242,10 @@ export const registerUser = async (req, res) => {
       preferredMode: preferredMode || 'home_visit',
       learningGoals: learningGoals?.trim() || '',
       agreedToPolicy: true,
-      agreedToPolicyAt: new Date()
+      agreedToPolicyAt: agreementDateObj,
+      agreedToPolicyDate: agreedDate,
+      agreedToPolicyTime: agreedTime,
+      agreedToPolicyFormatted: agreedFormatted
     });
 
     let tutorProfile = null;
@@ -226,8 +262,10 @@ export const registerUser = async (req, res) => {
           state: state || 'Delhi NCR',
           city: city || 'New Delhi',
           localities: Array.isArray(localities) ? localities : (localities ? localities.split(',').map(s => s.trim()) : [locality || 'Main']),
-          pincodes: pincode?.trim() ? [pincode.trim()] : []
+          pincodes: resolvedPincodes,
+          pincode: resolvedPincode
         },
+        pincode: resolvedPincode,
         modes: modes || ['home_visit', 'online'],
         subjects: subjects || ['Mathematics'],
         classes: classes || ['Class 9 - 10 (Secondary)'],
@@ -237,7 +275,12 @@ export const registerUser = async (req, res) => {
           hourly: Number(hourlyRate) || (Number(monthlyRate) ? Math.round(Number(monthlyRate) / 12) : 625)
         },
         bio: bio || 'Committed to personalized 1-on-1 teaching and strong conceptual mastery.',
-        isVerified: false // Needs Admin audit
+        isVerified: false, // Needs Admin audit
+        agreedToPolicy: true,
+        agreedToPolicyAt: agreementDateObj,
+        agreedToPolicyDate: agreedDate,
+        agreedToPolicyTime: agreedTime,
+        agreedToPolicyFormatted: agreedFormatted
       });
     }
 
@@ -269,6 +312,11 @@ export const registerUser = async (req, res) => {
         subjectsNeeded: user.subjectsNeeded || '',
         preferredMode: user.preferredMode || 'home_visit',
         learningGoals: user.learningGoals || '',
+        agreedToPolicy: user.agreedToPolicy,
+        agreedToPolicyAt: user.agreedToPolicyAt,
+        agreedToPolicyDate: user.agreedToPolicyDate,
+        agreedToPolicyTime: user.agreedToPolicyTime,
+        agreedToPolicyFormatted: user.agreedToPolicyFormatted,
         tutorProfileId: tutorProfile?._id
       }
     });
@@ -340,6 +388,11 @@ export const loginUser = async (req, res) => {
         subjectsNeeded: user.subjectsNeeded || '',
         preferredMode: user.preferredMode || 'home_visit',
         learningGoals: user.learningGoals || '',
+        agreedToPolicy: user.agreedToPolicy ?? true,
+        agreedToPolicyAt: user.agreedToPolicyAt || null,
+        agreedToPolicyDate: user.agreedToPolicyDate || '',
+        agreedToPolicyTime: user.agreedToPolicyTime || '',
+        agreedToPolicyFormatted: user.agreedToPolicyFormatted || '',
         tutorProfileId
       }
     });
@@ -593,7 +646,12 @@ export const updateUserProfile = async (req, res) => {
         school: user.school || '',
         subjectsNeeded: user.subjectsNeeded || '',
         preferredMode: user.preferredMode || 'home_visit',
-        learningGoals: user.learningGoals || ''
+        learningGoals: user.learningGoals || '',
+        agreedToPolicy: user.agreedToPolicy ?? true,
+        agreedToPolicyAt: user.agreedToPolicyAt || null,
+        agreedToPolicyDate: user.agreedToPolicyDate || '',
+        agreedToPolicyTime: user.agreedToPolicyTime || '',
+        agreedToPolicyFormatted: user.agreedToPolicyFormatted || ''
       }
     });
   } catch (error) {

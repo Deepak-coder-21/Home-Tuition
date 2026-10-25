@@ -481,8 +481,8 @@ export default function TutorDetailsPage() {
                 </span>
               ))}
             </div>
-            <div className="text-[11px] text-stone-400 pt-2 border-t border-stone-100">
-              PIN Codes covered: {tutor.location?.pincodes?.join(', ') || 'Contact for specific sector'}
+            <div className="text-[11px] text-stone-500 pt-2 border-t border-stone-100 font-medium">
+              PIN Codes covered: {tutor.location?.pincodes && tutor.location.pincodes.length > 0 ? tutor.location.pincodes.join(', ') : (tutor.location?.pincode || tutor.pincode || 'Contact for specific sector')}
             </div>
           </div>
 

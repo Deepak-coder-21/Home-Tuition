@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, useLocation, Link } from 'react-router-do
 import { useDispatch, useSelector } from 'react-redux';
 import { login, registerStudent, clearAuthError } from '../store/slices/authSlice';
 import { useLocationData } from '../hooks/useLocationData';
-import { lookupPincode } from '../services/locationService';
+import { lookupPincode, getPincodeLocation } from '../services/locationService';
 import SearchablePlaceSelect from '../components/common/SearchablePlaceSelect';
 import { CLASSES_LIST, BOARDS_LIST } from '../data/mockData';
 import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
@@ -89,16 +89,17 @@ export default function StudentAuthPage({ initialMode = 'login' }) {
 
   const handleStudentPinLookup = async (pin) => {
     setStudentPincode(pin);
-    if (/^\d{6}$/.test(pin.trim())) {
+    const cleaned = pin.replace(/\D/g, '').slice(0, 6);
+    if (/^\d{6}$/.test(cleaned)) {
       setIsLookingUpStudentPin(true);
-      const res = await lookupPincode(pin.trim());
+      const loc = await getPincodeLocation(cleaned, studentLoc.states);
       setIsLookingUpStudentPin(false);
-      if (res && res.state) {
+      if (loc && loc.matchedState) {
         setStudentForm(prev => ({
           ...prev,
-          state: res.state,
-          city: res.district,
-          locality: res.places?.[0]?.name ? `${res.places[0].name}` : prev.locality
+          state: loc.matchedState,
+          city: loc.matchedDistrict || loc.district,
+          locality: loc.places?.[0]?.name ? `${loc.places[0].name}` : prev.locality
         }));
       }
     }
@@ -176,6 +177,7 @@ export default function StudentAuthPage({ initialMode = 'login' }) {
       password: studentForm.password,
       otp: otpCode, // Mandatory verification code
       agreedToPolicy: true, // Mandatory agreement
+      agreedToPolicyAt: new Date().toISOString(),
       role: 'student'
     };
 
@@ -196,7 +198,12 @@ export default function StudentAuthPage({ initialMode = 'login' }) {
       }
       dispatch(registerStudent({
         id: data.user?._id || `usr-student-${Date.now()}`,
-        ...studentPayload
+        ...studentPayload,
+        agreedToPolicy: true,
+        agreedToPolicyAt: data.user?.agreedToPolicyAt || studentPayload.agreedToPolicyAt,
+        agreedToPolicyDate: data.user?.agreedToPolicyDate || '',
+        agreedToPolicyTime: data.user?.agreedToPolicyTime || '',
+        agreedToPolicyFormatted: data.user?.agreedToPolicyFormatted || ''
       }));
       setIsSubmitting(false);
       const destination = location.state?.from?.pathname || '/student/dashboard';

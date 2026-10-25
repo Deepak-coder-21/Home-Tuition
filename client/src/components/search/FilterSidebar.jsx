@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFilter, resetFilters } from '../../store/slices/filtersSlice';
 import { useLocationData } from '../../hooks/useLocationData';
-import { lookupPincode } from '../../services/locationService';
+import { lookupPincode, getPincodeLocation } from '../../services/locationService';
 import { 
   SUBJECTS_LIST, 
   CLASSES_LIST, 
@@ -34,12 +34,15 @@ export default function FilterSidebar({ isMobileModal = false, onClose = null })
 
     if (cleaned.length === 6) {
       setIsLookingUpPin(true);
-      const res = await lookupPincode(cleaned);
+      const loc = await getPincodeLocation(cleaned, states);
       setIsLookingUpPin(false);
-      if (res && res.district) {
-        if (res.state) dispatch(setFilter({ key: 'selectedState', value: res.state }));
-        dispatch(setFilter({ key: 'selectedCity', value: res.district }));
-        setPinFeedback(`${res.district}, ${res.state}`);
+      if (loc && loc.matchedState) {
+        dispatch(setFilter({ key: 'selectedState', value: loc.matchedState }));
+        if (loc.matchedDistrict) {
+          dispatch(setFilter({ key: 'selectedCity', value: loc.matchedDistrict }));
+        }
+        dispatch(setFilter({ key: 'selectedLocality', value: '' }));
+        setPinFeedback(`${loc.matchedDistrict || loc.district}, ${loc.matchedState || loc.state}`);
       } else {
         setPinFeedback('No postal records found');
       }

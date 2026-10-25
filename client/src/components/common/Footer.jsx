@@ -16,16 +16,27 @@ import {
   Search,
   Send,
   Activity,
-  Bell,
-  Sliders,
   Database,
   Lock,
   Server,
   ExternalLink,
   FileCheck,
-  Headphones,
   HeartHandshake
 } from 'lucide-react';
+
+// Reusable FooterLink that navigates and smoothly scrolls to top of page
+function FooterLink({ to, children, className = '', onClick, ...props }) {
+  const handleClick = (e) => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    if (onClick) onClick(e);
+  };
+
+  return (
+    <Link to={to} className={className} onClick={handleClick} {...props}>
+      {children}
+    </Link>
+  );
+}
 
 export default function Footer() {
   const { currentRole, isAuthenticated } = useSelector((state) => state.auth);
@@ -61,8 +72,8 @@ export default function Footer() {
           
           {/* Executive Admin Operations Strip */}
           <div className="pb-8 mb-8 border-b border-stone-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-2xl bg-stone-900 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold shadow-md shrink-0">
+            <FooterLink to="/" className="flex items-center gap-3.5 group">
+              <div className="w-11 h-11 rounded-2xl bg-stone-900 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold shadow-md shrink-0 group-hover:border-emerald-400 transition">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
@@ -78,7 +89,7 @@ export default function Footer() {
                   Platform Verification, Document Audits & System Governance Infrastructure
                 </p>
               </div>
-            </div>
+            </FooterLink>
 
             <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-stone-300">
               <div className="flex items-center gap-1.5 bg-stone-900 px-3 py-1.5 rounded-xl border border-stone-800 text-emerald-400">
@@ -106,29 +117,29 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-sm text-stone-400">
                 <li>
-                  <Link to="/admin/portal?tab=overview" className="hover:text-emerald-400 transition flex items-center gap-2">
+                  <FooterLink to="/admin/portal?tab=overview" className="hover:text-emerald-400 transition flex items-center gap-2">
                     <span>Command Center Overview</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/admin/portal?tab=tutors" className="hover:text-emerald-400 transition flex items-center gap-2">
+                  <FooterLink to="/admin/portal?tab=tutors" className="hover:text-emerald-400 transition flex items-center gap-2">
                     <span>Teacher Verification & Document Audits</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/admin/portal?tab=students" className="hover:text-emerald-400 transition flex items-center gap-2">
+                  <FooterLink to="/admin/portal?tab=students" className="hover:text-emerald-400 transition flex items-center gap-2">
                     <span>Student Accounts Moderation</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/admin/portal?tab=reviews" className="hover:text-emerald-400 transition flex items-center gap-2">
+                  <FooterLink to="/admin/portal?tab=reviews" className="hover:text-emerald-400 transition flex items-center gap-2">
                     <span>Parent & Student Review Moderation</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/admin/portal?tab=messages" className="hover:text-emerald-400 transition flex items-center gap-2">
+                  <FooterLink to="/admin/portal?tab=messages" className="hover:text-emerald-400 transition flex items-center gap-2">
                     <span>Urgent Platform Announcements</span>
-                  </Link>
+                  </FooterLink>
                 </li>
               </ul>
             </div>
@@ -141,34 +152,24 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-sm text-stone-400">
                 <li>
-                  <Link to="/tutor-guidelines" className="hover:text-emerald-400 transition block">
+                  <FooterLink to="/tutor-guidelines" className="hover:text-emerald-400 transition block">
                     Educator Verification Protocols
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/tutor-responsibility-policy" className="hover:text-emerald-400 transition block">
-                    Zero Commission Compliance Charter
-                  </Link>
+                  <FooterLink to="/tutor-responsibility-policy" className="hover:text-emerald-400 transition block">
+                    Platform Responsibility & Zero Commission Charter
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/tutor-responsibility-policy" className="hover:text-emerald-400 transition block">
-                    Platform Role & Liability Framework
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/tutor-guidelines" className="hover:text-emerald-400 transition block">
-                    Code of Ethics & Doorstep Safety Norms
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/tutor-faq" className="hover:text-emerald-400 transition block">
+                  <FooterLink to="/tutor-faq" className="hover:text-emerald-400 transition block">
                     Educator Frequently Asked Questions
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/terms-and-conditions" className="hover:text-emerald-400 transition block">
+                  <FooterLink to="/terms-and-conditions" className="hover:text-emerald-400 transition block">
                     Terms & Conditions of Service
-                  </Link>
+                  </FooterLink>
                 </li>
               </ul>
             </div>
@@ -181,29 +182,29 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-sm text-stone-400">
                 <li>
-                  <Link to="/" className="hover:text-emerald-400 transition flex items-center gap-2">
+                  <FooterLink to="/" className="hover:text-emerald-400 transition flex items-center gap-2">
                     <span>Public Home Page</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/search" className="hover:text-emerald-400 transition flex items-center gap-2">
+                  <FooterLink to="/search" className="hover:text-emerald-400 transition flex items-center gap-2">
                     <span>Live Tutor Directory Search</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/how-it-works" className="hover:text-emerald-400 transition flex items-center gap-2">
+                  <FooterLink to="/how-it-works" className="hover:text-emerald-400 transition flex items-center gap-2">
                     <span>How Tuition Matching Works</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/tutor/login" className="hover:text-emerald-400 transition flex items-center gap-2">
+                  <FooterLink to="/tutor/login" className="hover:text-emerald-400 transition flex items-center gap-2">
                     <span>Educator Network Login</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/student/login" className="hover:text-emerald-400 transition flex items-center gap-2">
+                  <FooterLink to="/student/login" className="hover:text-emerald-400 transition flex items-center gap-2">
                     <span>Parent & Student Login</span>
-                  </Link>
+                  </FooterLink>
                 </li>
               </ul>
             </div>
@@ -218,14 +219,14 @@ export default function Footer() {
                 Emergency escalation desk for server health, database sync, or platform moderation emergencies:
               </p>
               <div className="space-y-1.5 pt-1 text-xs">
-                <div className="flex items-center gap-2 text-stone-200">
+                <a href="tel:+911145678999" className="flex items-center gap-2 text-stone-200 hover:text-emerald-400 transition">
                   <Phone className="w-3.5 h-3.5 text-emerald-400" />
                   <span>+91 (011) 4567-8999 (Staff Hot Desk)</span>
-                </div>
-                <div className="flex items-center gap-2 text-stone-200">
+                </a>
+                <a href={`mailto:${adminOpsEmail}`} className="flex items-center gap-2 text-stone-200 hover:text-emerald-400 transition">
                   <Mail className="w-3.5 h-3.5 text-emerald-400" />
                   <span>{adminOpsEmail}</span>
-                </div>
+                </a>
               </div>
               <div className="pt-2 text-[11px] text-stone-400 border-t border-stone-800 flex items-center justify-between">
                 <span>Server Region: AWS ap-south-1</span>
@@ -238,18 +239,18 @@ export default function Footer() {
           <div className="mt-10 pt-6 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
             <p>© {copyrightYear} {companyName} Executive Administration Console. Internal Staff Use Only.</p>
             <div className="flex flex-wrap items-center gap-6 text-stone-400">
-              <Link to="/tutor-responsibility-policy" className="hover:text-emerald-400 transition">
+              <FooterLink to="/tutor-responsibility-policy" className="hover:text-emerald-400 transition">
                 Platform Responsibility Charter
-              </Link>
-              <Link to="/tutor-guidelines" className="hover:text-emerald-400 transition">
+              </FooterLink>
+              <FooterLink to="/tutor-guidelines" className="hover:text-emerald-400 transition">
                 Verification Guidelines
-              </Link>
-              <Link to="/terms-and-conditions" className="hover:text-emerald-400 transition">
+              </FooterLink>
+              <FooterLink to="/terms-and-conditions" className="hover:text-emerald-400 transition">
                 Terms & Conditions
-              </Link>
-              <Link to="/" className="hover:text-emerald-400 transition">
+              </FooterLink>
+              <FooterLink to="/" className="hover:text-emerald-400 transition">
                 Exit to Public Website →
-              </Link>
+              </FooterLink>
             </div>
           </div>
 
@@ -268,8 +269,8 @@ export default function Footer() {
           
           {/* Educator Banner Strip */}
           <div className="pb-10 mb-10 border-b border-brand-900/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-amber-400 text-brand-950 flex items-center justify-center font-bold shadow-md shrink-0">
+            <FooterLink to="/" className="flex items-center gap-3.5 group">
+              <div className="w-12 h-12 rounded-2xl bg-amber-400 text-brand-950 flex items-center justify-center font-bold shadow-md shrink-0 group-hover:bg-amber-300 transition">
                 <GraduationCap className="w-7 h-7" />
               </div>
               <div>
@@ -285,7 +286,7 @@ export default function Footer() {
                   The premier verified network for professional home & 1-on-1 private educators in India
                 </p>
               </div>
-            </div>
+            </FooterLink>
 
             <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-stone-300">
               <div className="flex items-center gap-1.5 bg-brand-900/80 px-3 py-1.5 rounded-xl border border-brand-800">
@@ -313,29 +314,29 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-sm text-stone-400">
                 <li>
-                  <Link to="/tutor/dashboard?tab=inbox" className="hover:text-amber-300 transition flex items-center gap-2">
+                  <FooterLink to="/tutor/dashboard?tab=inbox" className="hover:text-amber-300 transition flex items-center gap-2">
                     <span>Student Inquiries Inbox</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/tutor/dashboard?tab=profile" className="hover:text-amber-300 transition flex items-center gap-2">
+                  <FooterLink to="/tutor/dashboard?tab=profile" className="hover:text-amber-300 transition flex items-center gap-2">
                     <span>Profile & Rate Editor</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/tutor/dashboard?tab=service_areas" className="hover:text-amber-300 transition flex items-center gap-2">
+                  <FooterLink to="/tutor/dashboard?tab=service_areas" className="hover:text-amber-300 transition flex items-center gap-2">
                     <span>Service Localities & Modes</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/tutor/dashboard?tab=verification" className="hover:text-amber-300 transition flex items-center gap-2">
+                  <FooterLink to="/tutor/dashboard?tab=verification" className="hover:text-amber-300 transition flex items-center gap-2">
                     <span>Document Verification & ID Badges</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/tutor/dashboard?tab=reviews" className="hover:text-amber-300 transition flex items-center gap-2">
+                  <FooterLink to="/tutor/dashboard?tab=reviews" className="hover:text-amber-300 transition flex items-center gap-2">
                     <span>Parent Reviews & Ratings</span>
-                  </Link>
+                  </FooterLink>
                 </li>
               </ul>
             </div>
@@ -348,24 +349,24 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-sm text-stone-400">
                 <li>
-                  <Link to="/tutor-guidelines" className="hover:text-amber-300 transition block">
-                    Doorstep Safety & Ethics Protocol
-                  </Link>
+                  <FooterLink to="/tutor-guidelines" className="hover:text-amber-300 transition block">
+                    Teaching Standards & Doorstep Conduct Protocol
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/tutor-guidelines" className="hover:text-amber-300 transition block">
-                    First Trial Session Best Practices
-                  </Link>
+                  <FooterLink to="/how-it-works" className="hover:text-amber-300 transition block">
+                    How Tuition Matching Works
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/tutor-guidelines" className="hover:text-amber-300 transition block">
-                    CBSE / ICSE / IB Syllabus Guidelines
-                  </Link>
+                  <FooterLink to="/search" className="hover:text-amber-300 transition block">
+                    Browse Educators Directory
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/tutor-guidelines" className="hover:text-amber-300 transition block">
-                    Punctuality & Cancellation Norms
-                  </Link>
+                  <FooterLink to="/tutor-faq" className="hover:text-amber-300 transition block">
+                    Educator FAQ Desk
+                  </FooterLink>
                 </li>
               </ul>
             </div>
@@ -378,29 +379,24 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-sm text-stone-400">
                 <li>
-                  <Link to="/tutor-responsibility-policy" className="hover:text-amber-300 transition block text-amber-300/90 font-medium">
+                  <FooterLink to="/tutor-responsibility-policy" className="hover:text-amber-300 transition block text-amber-300/90 font-medium">
                     Platform Responsibility & Dispute Policy
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/tutor-responsibility-policy" className="hover:text-amber-300 transition block">
-                    Zero Liability & Direct Agreement Charter
-                  </Link>
+                  <FooterLink to="/tutor-guidelines" className="hover:text-amber-300 transition block">
+                    Doorstep Safety & Conduct Guidelines
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/tutor-faq" className="hover:text-amber-300 transition block">
+                  <FooterLink to="/tutor-faq" className="hover:text-amber-300 transition block">
                     Educator FAQ & Common Questions
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/tutor-responsibility-policy" className="hover:text-amber-300 transition block">
-                    Zero Commission Guarantee (100% Retained)
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/terms-and-conditions" className="hover:text-amber-300 transition block">
+                  <FooterLink to="/terms-and-conditions" className="hover:text-amber-300 transition block">
                     Terms & Conditions of Service
-                  </Link>
+                  </FooterLink>
                 </li>
               </ul>
             </div>
@@ -415,20 +411,20 @@ export default function Footer() {
                 Dedicated support line for verified teachers regarding inquiries, credentials, or schedules:
               </p>
               <div className="space-y-1.5 pt-1">
-                <div className="flex items-center gap-2 text-xs font-semibold text-white">
+                <a href={`tel:${tutorSupportPhone.replace(/[^+\d]/g, '')}`} className="flex items-center gap-2 text-xs font-semibold text-white hover:text-amber-300 transition">
                   <Phone className="w-3.5 h-3.5 text-amber-400" />
                   <span>{tutorSupportPhone} (Tutor Line)</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-white">
+                </a>
+                <a href={`mailto:${tutorEmail}`} className="flex items-center gap-2 text-xs font-semibold text-white hover:text-amber-300 transition">
                   <Mail className="w-3.5 h-3.5 text-amber-400" />
                   <span>{tutorEmail}</span>
-                </div>
+                </a>
               </div>
               <div className="pt-2 text-[11px] text-stone-400 border-t border-brand-800 flex items-center justify-between">
                 <span>Mon – Sat: 9AM – 8PM IST</span>
-                <Link to="/tutor-faq" className="text-amber-400 font-bold hover:underline">
+                <FooterLink to="/tutor-faq" className="text-amber-400 font-bold hover:underline">
                   FAQ Desk →
-                </Link>
+                </FooterLink>
               </div>
             </div>
           </div>
@@ -443,9 +439,9 @@ export default function Footer() {
               <p className="text-stone-300">
                 {siteName} operates strictly as an introductory matching directory. <strong>{siteName} does not take any responsibility or liability for disputes, misunderstandings, behavioural issues, payment defaults, or any conflicts between tutors and students or parents.</strong> All tuition arrangements, session schedules, and doorstep safety are strictly the mutual and direct private responsibility of parents and educators.
               </p>
-              <Link to="/tutor-responsibility-policy" className="inline-block text-amber-300 font-bold underline hover:text-white pt-1">
+              <FooterLink to="/tutor-responsibility-policy" className="inline-block text-amber-300 font-bold underline hover:text-white pt-1">
                 Read our detailed Platform Role & Responsibility Policy →
-              </Link>
+              </FooterLink>
             </div>
           </div>
 
@@ -453,22 +449,22 @@ export default function Footer() {
           <div className="mt-8 pt-6 border-t border-brand-900/90 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
             <p>© {copyrightYear} {siteName} Educator Network. Dedicated Educator Portal.</p>
             <div className="flex flex-wrap items-center gap-6 text-stone-400">
-              <Link to="/tutor-responsibility-policy" className="hover:text-amber-300 transition">
+              <FooterLink to="/tutor-responsibility-policy" className="hover:text-amber-300 transition">
                 Responsibility & Liability Policy
-              </Link>
-              <Link to="/tutor-guidelines" className="hover:text-amber-300 transition">
+              </FooterLink>
+              <FooterLink to="/tutor-guidelines" className="hover:text-amber-300 transition">
                 Educator Code of Conduct
-              </Link>
-              <Link to="/tutor-faq" className="hover:text-amber-300 transition">
+              </FooterLink>
+              <FooterLink to="/tutor-faq" className="hover:text-amber-300 transition">
                 Tutor FAQ
-              </Link>
-              <Link to="/terms-and-conditions" className="hover:text-amber-300 transition">
+              </FooterLink>
+              <FooterLink to="/terms-and-conditions" className="hover:text-amber-300 transition">
                 Terms & Conditions
-              </Link>
-              <Link to="/admin/login" className="hover:text-emerald-400 text-stone-400 flex items-center gap-1.5 transition font-medium">
+              </FooterLink>
+              <FooterLink to="/admin/login" className="hover:text-emerald-400 text-stone-400 flex items-center gap-1.5 transition font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Admin Login</span>
-              </Link>
+              </FooterLink>
             </div>
           </div>
         </div>
@@ -486,8 +482,8 @@ export default function Footer() {
           
           {/* Student & Parent Banner Strip */}
           <div className="pb-10 mb-10 border-b border-stone-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-terracotta-600 text-white flex items-center justify-center font-bold shadow-md shrink-0">
+            <FooterLink to="/" className="flex items-center gap-3.5 group">
+              <div className="w-12 h-12 rounded-2xl bg-terracotta-600 text-white flex items-center justify-center font-bold shadow-md shrink-0 group-hover:bg-terracotta-500 transition">
                 <Users className="w-7 h-7" />
               </div>
               <div>
@@ -503,7 +499,7 @@ export default function Footer() {
                   Safe, verified doorstep home tuition mentoring for Class 1 to 12 across India
                 </p>
               </div>
-            </div>
+            </FooterLink>
 
             <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-stone-300">
               <div className="flex items-center gap-1.5 bg-stone-800/80 px-3 py-1.5 rounded-xl border border-stone-700">
@@ -531,29 +527,29 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-sm text-stone-400">
                 <li>
-                  <Link to="/student/dashboard?tab=inquiries" className="hover:text-terracotta-400 transition flex items-center gap-2">
+                  <FooterLink to="/student/dashboard?tab=inquiries" className="hover:text-terracotta-400 transition flex items-center gap-2">
                     <span>My Tuition Inquiries</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/student/dashboard?tab=connected" className="hover:text-terracotta-400 transition flex items-center gap-2">
+                  <FooterLink to="/student/dashboard?tab=connected" className="hover:text-terracotta-400 transition flex items-center gap-2">
                     <span>Connected Educators</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/student/dashboard?tab=profile" className="hover:text-terracotta-400 transition flex items-center gap-2">
+                  <FooterLink to="/student/dashboard?tab=profile" className="hover:text-terracotta-400 transition flex items-center gap-2">
                     <span>Update Student Profile & Grade</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/search" className="hover:text-terracotta-400 transition flex items-center gap-2">
+                  <FooterLink to="/search" className="hover:text-terracotta-400 transition flex items-center gap-2">
                     <span>Find Verified Home Tutors</span>
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/how-it-works" className="hover:text-terracotta-400 transition flex items-center gap-2">
+                  <FooterLink to="/how-it-works" className="hover:text-terracotta-400 transition flex items-center gap-2">
                     <span>How Tuition Matching Works</span>
-                  </Link>
+                  </FooterLink>
                 </li>
               </ul>
             </div>
@@ -566,29 +562,29 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-sm text-stone-400">
                 <li>
-                  <Link to="/search?class=Class+1+-+5+(Primary)" className="hover:text-terracotta-400 transition block">
+                  <FooterLink to="/search?class=Class+1+-+5+(Primary)" className="hover:text-terracotta-400 transition block">
                     Primary School (Class 1 - 5)
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/search?class=Class+6+-+8+(Middle)" className="hover:text-terracotta-400 transition block">
+                  <FooterLink to="/search?class=Class+6+-+8+(Middle)" className="hover:text-terracotta-400 transition block">
                     Middle School (Class 6 - 8)
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/search?class=Class+9+-+10+(Secondary)" className="hover:text-terracotta-400 transition block">
+                  <FooterLink to="/search?class=Class+9+-+10+(Secondary)" className="hover:text-terracotta-400 transition block">
                     Secondary Boards (Class 9 - 10)
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/search?class=Class+11+-+12+(Senior+Secondary)" className="hover:text-terracotta-400 transition block">
+                  <FooterLink to="/search?class=Class+11+-+12+(Senior+Secondary)" className="hover:text-terracotta-400 transition block">
                     Senior Secondary (Class 11 - 12)
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/search" className="hover:text-terracotta-400 transition block">
+                  <FooterLink to="/search" className="hover:text-terracotta-400 transition block">
                     CBSE, ICSE, IB & Cambridge Tutors
-                  </Link>
+                  </FooterLink>
                 </li>
               </ul>
             </div>
@@ -601,29 +597,29 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-sm text-stone-400">
                 <li>
-                  <Link to="/safety-guidelines" className="hover:text-terracotta-400 transition block">
+                  <FooterLink to="/safety-guidelines" className="hover:text-terracotta-400 transition block">
                     Home Tuition Safety Protocols
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/responsibility-policy" className="hover:text-terracotta-400 transition block">
+                  <FooterLink to="/responsibility-policy" className="hover:text-terracotta-400 transition block">
                     Parent & Tutor Mutual Charter
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/responsibility-policy" className="hover:text-terracotta-400 transition block">
-                    Dispute & Payment Agreement Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/tutor-faq" className="hover:text-terracotta-400 transition block">
+                  <FooterLink to="/tutor-faq" className="hover:text-terracotta-400 transition block">
                     Parent Frequently Asked Questions
-                  </Link>
+                  </FooterLink>
                 </li>
                 <li>
-                  <Link to="/terms-and-conditions" className="hover:text-terracotta-400 transition block">
+                  <FooterLink to="/terms-and-conditions" className="hover:text-terracotta-400 transition block">
                     Terms & Conditions of Service
-                  </Link>
+                  </FooterLink>
+                </li>
+                <li>
+                  <FooterLink to="/how-it-works" className="hover:text-terracotta-400 transition block">
+                    How Tuition Matching Works
+                  </FooterLink>
                 </li>
               </ul>
             </div>
@@ -638,14 +634,14 @@ export default function Footer() {
                 Connect directly with our parent counseling team for personalized teacher recommendations:
               </p>
               <div className="space-y-1.5 pt-1 text-xs">
-                <div className="flex items-center gap-2 text-stone-200 font-semibold">
+                <a href={`tel:${parentHelpline.replace(/[^+\d]/g, '')}`} className="flex items-center gap-2 text-stone-200 hover:text-terracotta-400 transition font-semibold">
                   <Phone className="w-3.5 h-3.5 text-terracotta-400" />
                   <span>{parentHelpline} (Parent Line)</span>
-                </div>
-                <div className="flex items-center gap-2 text-stone-200">
+                </a>
+                <a href={`mailto:${parentsEmail}`} className="flex items-center gap-2 text-stone-200 hover:text-terracotta-400 transition">
                   <Mail className="w-3.5 h-3.5 text-terracotta-400" />
                   <span>{parentsEmail}</span>
-                </div>
+                </a>
               </div>
               <div className="pt-2 text-[11px] text-stone-400 border-t border-stone-700 flex items-center justify-between">
                 <span>Mon – Sun: 8AM – 9PM IST</span>
@@ -658,22 +654,22 @@ export default function Footer() {
           <div className="mt-10 pt-6 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
             <p>© {copyrightYear} {companyName} Student & Parent Portal. All rights reserved.</p>
             <div className="flex flex-wrap items-center gap-6 text-stone-400">
-              <Link to="/responsibility-policy" className="hover:text-terracotta-400 transition">
+              <FooterLink to="/responsibility-policy" className="hover:text-terracotta-400 transition">
                 Responsibility & Liability Disclaimer
-              </Link>
-              <Link to="/safety-guidelines" className="hover:text-terracotta-400 transition">
+              </FooterLink>
+              <FooterLink to="/safety-guidelines" className="hover:text-terracotta-400 transition">
                 Safety Guidelines
-              </Link>
-              <Link to="/tutor-faq" className="hover:text-terracotta-400 transition">
+              </FooterLink>
+              <FooterLink to="/tutor-faq" className="hover:text-terracotta-400 transition">
                 Parent FAQ
-              </Link>
-              <Link to="/terms-and-conditions" className="hover:text-terracotta-400 transition">
+              </FooterLink>
+              <FooterLink to="/terms-and-conditions" className="hover:text-terracotta-400 transition">
                 Terms & Conditions
-              </Link>
-              <Link to="/admin/login" className="hover:text-emerald-400 text-stone-400 flex items-center gap-1.5 transition font-medium">
+              </FooterLink>
+              <FooterLink to="/admin/login" className="hover:text-emerald-400 text-stone-400 flex items-center gap-1.5 transition font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Admin Login</span>
-              </Link>
+              </FooterLink>
             </div>
           </div>
         </div>
@@ -691,14 +687,14 @@ export default function Footer() {
           
           {/* Col 1: Brand & Mission */}
           <div className="space-y-4 md:col-span-1">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-brand-700 text-amber-200 flex items-center justify-center">
+            <FooterLink to="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-brand-700 text-amber-200 flex items-center justify-center group-hover:bg-brand-600 transition">
                 <GraduationCap className="w-5 h-5" />
               </div>
               <span className="font-serif text-2xl font-bold text-white tracking-tight">
                 {logoPrefix}<span className="text-terracotta-500">{logoHighlight}</span>
               </span>
-            </div>
+            </FooterLink>
             <p className="text-stone-400 text-sm leading-relaxed">
               {footerAboutText}
             </p>
@@ -712,12 +708,12 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-white text-sm uppercase tracking-wider mb-4">Popular Subjects</h4>
             <ul className="space-y-2 text-sm text-stone-400">
-              <li><Link to="/search?subject=Mathematics" className="hover:text-amber-300 transition">Class 9 - 12 Mathematics</Link></li>
-              <li><Link to="/search?subject=Physics" className="hover:text-amber-300 transition">CBSE & ICSE Physics</Link></li>
-              <li><Link to="/search?subject=Chemistry" className="hover:text-amber-300 transition">NEET & Board Chemistry</Link></li>
-              <li><Link to="/search?subject=Computer+Science" className="hover:text-amber-300 transition">Python & Computer Science</Link></li>
-              <li><Link to="/search?subject=Accountancy" className="hover:text-amber-300 transition">Class 11 - 12 Accounts & CA</Link></li>
-              <li><Link to="/search?subject=English" className="hover:text-amber-300 transition">English Literature & Spoken</Link></li>
+              <li><FooterLink to="/search?subject=Mathematics" className="hover:text-amber-300 transition block">Class 9 - 12 Mathematics</FooterLink></li>
+              <li><FooterLink to="/search?subject=Physics" className="hover:text-amber-300 transition block">CBSE & ICSE Physics</FooterLink></li>
+              <li><FooterLink to="/search?subject=Chemistry" className="hover:text-amber-300 transition block">NEET & Board Chemistry</FooterLink></li>
+              <li><FooterLink to="/search?subject=Computer+Science" className="hover:text-amber-300 transition block">Python & Computer Science</FooterLink></li>
+              <li><FooterLink to="/search?subject=Accountancy" className="hover:text-amber-300 transition block">Class 11 - 12 Accounts & Commerce</FooterLink></li>
+              <li><FooterLink to="/search?subject=English" className="hover:text-amber-300 transition block">English Literature & Spoken</FooterLink></li>
             </ul>
           </div>
 
@@ -725,12 +721,12 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-white text-sm uppercase tracking-wider mb-4">Tutors in Key Cities</h4>
             <ul className="space-y-2 text-sm text-stone-400">
-              <li><Link to="/search?city=New+Delhi" className="hover:text-amber-300 transition">Home Tutors in Delhi NCR</Link></li>
-              <li><Link to="/search?city=Mumbai" className="hover:text-amber-300 transition">Home Tutors in Mumbai</Link></li>
-              <li><Link to="/search?city=Bengaluru" className="hover:text-amber-300 transition">Home Tutors in Bengaluru</Link></li>
-              <li><Link to="/search?city=Pune" className="hover:text-amber-300 transition">Home Tutors in Pune</Link></li>
-              <li><Link to="/search?city=Kolkata" className="hover:text-amber-300 transition">Home Tutors in Kolkata</Link></li>
-              <li><Link to="/search?city=Jaipur" className="hover:text-amber-300 transition">Home Tutors in Jaipur</Link></li>
+              <li><FooterLink to="/search?city=New+Delhi" className="hover:text-amber-300 transition block">Home Tutors in Delhi NCR</FooterLink></li>
+              <li><FooterLink to="/search?city=Mumbai" className="hover:text-amber-300 transition block">Home Tutors in Mumbai</FooterLink></li>
+              <li><FooterLink to="/search?city=Bengaluru" className="hover:text-amber-300 transition block">Home Tutors in Bengaluru</FooterLink></li>
+              <li><FooterLink to="/search?city=Pune" className="hover:text-amber-300 transition block">Home Tutors in Pune</FooterLink></li>
+              <li><FooterLink to="/search?city=Kolkata" className="hover:text-amber-300 transition block">Home Tutors in Kolkata</FooterLink></li>
+              <li><FooterLink to="/search?city=Jaipur" className="hover:text-amber-300 transition block">Home Tutors in Jaipur</FooterLink></li>
             </ul>
           </div>
 
@@ -742,11 +738,15 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-2 text-sm text-stone-300">
               <Phone className="w-4 h-4 text-terracotta-400" />
-              <span>{contactPhone} / 24x7</span>
+              <a href={`tel:${contactPhone.replace(/[^+\d]/g, '')}`} className="hover:text-white transition">
+                {contactPhone} / 24x7
+              </a>
             </div>
             <div className="flex items-center gap-2 text-sm text-stone-300">
               <Mail className="w-4 h-4 text-terracotta-400" />
-              <span>{supportEmail}</span>
+              <a href={`mailto:${supportEmail}`} className="hover:text-white transition">
+                {supportEmail}
+              </a>
             </div>
             <div className="pt-2 text-xs text-stone-500">
               Registered Office: {officeAddress}
@@ -758,22 +758,22 @@ export default function Footer() {
         <div className="mt-12 pt-6 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
           <p>© {copyrightYear} {companyName} All rights reserved.</p>
           <div className="flex flex-wrap items-center gap-6">
-            <Link to="/responsibility-policy" className="hover:text-stone-400 transition">
+            <FooterLink to="/responsibility-policy" className="hover:text-stone-400 transition">
               Responsibility & Liability Disclaimer
-            </Link>
-            <Link to="/safety-guidelines" className="hover:text-stone-400 transition">
+            </FooterLink>
+            <FooterLink to="/safety-guidelines" className="hover:text-stone-400 transition">
               Safety Guidelines
-            </Link>
-            <Link to="/tutor-faq" className="hover:text-stone-400 transition">
+            </FooterLink>
+            <FooterLink to="/tutor-faq" className="hover:text-stone-400 transition">
               FAQ
-            </Link>
-            <Link to="/terms-and-conditions" className="hover:text-stone-400 transition">
+            </FooterLink>
+            <FooterLink to="/terms-and-conditions" className="hover:text-stone-400 transition">
               Terms & Conditions
-            </Link>
-            <Link to="/admin/login" className="hover:text-emerald-400 text-stone-400 flex items-center gap-1.5 transition font-medium">
+            </FooterLink>
+            <FooterLink to="/admin/login" className="hover:text-emerald-400 text-stone-400 flex items-center gap-1.5 transition font-medium">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
               <span>Admin Portal</span>
-            </Link>
+            </FooterLink>
           </div>
         </div>
       </div>

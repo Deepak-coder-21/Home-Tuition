@@ -13,16 +13,17 @@ import {
   Mail, 
   Phone, 
   MapPin, 
-  ExternalLink,
-  BookOpen,
-  Users,
-  GraduationCap,
-  Lock,
-  HeartHandshake,
-  UserCheck,
-  Ban,
-  Building,
-  Printer
+  ExternalLink, 
+  BookOpen, 
+  Users, 
+  GraduationCap, 
+  Lock, 
+  HeartHandshake, 
+  UserCheck, 
+  Ban, 
+  Building, 
+  Printer,
+  Database
 } from 'lucide-react';
 
 export default function TermsAndConditionsPage() {
@@ -52,16 +53,17 @@ export default function TermsAndConditionsPage() {
     { id: 'section-2', title: '2. Nature of Platform & Intermediary Role' },
     { id: 'section-3', title: '3. User Eligibility & Minor Protection' },
     { id: 'section-4', title: '4. Account Registration & Email Verification' },
-    { id: 'section-5', title: '5. Educator Verification & Document Integrity' },
-    { id: 'section-6', title: '6. Direct Payments & 0% Platform Commission' },
-    { id: 'section-7', title: '7. Lesson Logistics & Doorstep Safety Norms' },
-    { id: 'section-8', title: '8. Prohibited Conduct & Zero Child Harm Policy' },
-    { id: 'section-9', title: '9. Parent Reviews, Ratings & Content Rules' },
-    { id: 'section-10', title: '10. Intellectual Property Rights' },
-    { id: 'section-11', title: '11. Disclaimer of Warranties & Outcomes' },
-    { id: 'section-12', title: '12. Limitation of Liability & Indemnification' },
-    { id: 'section-13', title: '13. Suspension & Account Termination' },
-    { id: 'section-14', title: '14. Governing Law & Grievance Redressal' },
+    { id: 'section-5', title: '5. Data Privacy, Storage & Zero Third-Party Sharing' },
+    { id: 'section-6', title: '6. Educator Verification & Document Integrity' },
+    { id: 'section-7', title: '7. Direct Payments & 0% Platform Commission' },
+    { id: 'section-8', title: '8. Lesson Logistics & Doorstep Safety Norms' },
+    { id: 'section-9', title: '9. Prohibited Conduct & Zero Child Harm Policy' },
+    { id: 'section-10', title: '10. Parent Reviews, Ratings & Content Rules' },
+    { id: 'section-11', title: '11. Intellectual Property Rights' },
+    { id: 'section-12', title: '12. Disclaimer of Warranties & Outcomes' },
+    { id: 'section-13', title: '13. Limitation of Liability & Indemnification' },
+    { id: 'section-14', title: '14. Suspension & Account Termination' },
+    { id: 'section-15', title: '15. Governing Law & Grievance Redressal' },
   ];
 
   return (
@@ -106,12 +108,12 @@ export default function TermsAndConditionsPage() {
           <div className="flex flex-wrap items-center gap-4 pt-3 text-xs text-stone-400 border-t border-white/10">
             <span className="flex items-center gap-1.5 text-stone-300">
               <Clock className="w-3.5 h-3.5 text-amber-400" />
-              Effective Date: March 2026
+              Effective Date: October 2026
             </span>
             <span>•</span>
             <span className="flex items-center gap-1.5 text-stone-300">
               <FileText className="w-3.5 h-3.5 text-amber-400" />
-              Document Version: 2.4 (IT Act 2000 Compliant)
+              Document Version: 3.0 (DPDP Act 2023 & IT Act Compliant)
             </span>
             <span>•</span>
             <span className="flex items-center gap-1.5 text-stone-300">
@@ -121,9 +123,9 @@ export default function TermsAndConditionsPage() {
           </div>
         </div>
 
-        {/* Four Key Pillars Summary Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2">
+        {/* Five Key Pillars Summary Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+          <div className="bg-white p-4.5 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2">
             <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-700 flex items-center justify-center font-bold">
               <Users className="w-5 h-5 text-amber-700" />
             </div>
@@ -133,7 +135,7 @@ export default function TermsAndConditionsPage() {
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2">
+          <div className="bg-white p-4.5 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2">
             <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center font-bold">
               <ShieldCheck className="w-5 h-5 text-emerald-700" />
             </div>
@@ -143,7 +145,7 @@ export default function TermsAndConditionsPage() {
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2">
+          <div className="bg-white p-4.5 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2">
             <div className="w-9 h-9 rounded-xl bg-terracotta-500/10 text-terracotta-700 flex items-center justify-center font-bold">
               <HeartHandshake className="w-5 h-5 text-terracotta-700" />
             </div>
@@ -153,9 +155,19 @@ export default function TermsAndConditionsPage() {
             </p>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2">
+          <div className="bg-white p-4.5 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2">
             <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-700 flex items-center justify-center font-bold">
-              <Scale className="w-5 h-5 text-blue-700" />
+              <Lock className="w-5 h-5 text-blue-700" />
+            </div>
+            <h3 className="font-bold text-stone-900 text-sm">Zero Data Sharing</h3>
+            <p className="text-xs text-stone-600 leading-relaxed">
+              We never sell, rent, or share personal contact data with any third-party advertisers, telemarketers, or brokers.
+            </p>
+          </div>
+
+          <div className="bg-white p-4.5 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-700 flex items-center justify-center font-bold">
+              <Scale className="w-5 h-5 text-purple-700" />
             </div>
             <h3 className="font-bold text-stone-900 text-sm">Direct Responsibility</h3>
             <p className="text-xs text-stone-600 leading-relaxed">
@@ -192,7 +204,7 @@ export default function TermsAndConditionsPage() {
 
             <div className="pt-3 border-t border-stone-100 text-[11px] text-stone-500 space-y-2">
               <p>
-                Have questions regarding compliance or terms?
+                Have questions regarding compliance, privacy, or terms?
               </p>
               <a
                 href={`mailto:${supportEmail}`}
@@ -219,10 +231,10 @@ export default function TermsAndConditionsPage() {
               </div>
               <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3">
                 <p>
-                  1.1. <strong>Binding Legal Contract:</strong> Welcome to {siteName}. These Terms and Conditions of Service ("Terms") constitute a legally binding electronic agreement between you ("User", "you", or "your") and {companyName} ("Company", "{siteName}", "we", "us", or "our"), formulated pursuant to the Information Technology Act, 2000, and the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021.
+                  1.1. <strong>Binding Legal Contract:</strong> Welcome to {siteName}. These Terms and Conditions of Service ("Terms") constitute a legally binding electronic agreement between you ("User", "you", or "your") and {companyName} ("Company", "{siteName}", "we", "us", or "our"), formulated pursuant to the Information Technology Act, 2000, the Digital Personal Data Protection Act, 2023, and the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021.
                 </p>
                 <p>
-                  1.2. <strong>Affirmation of Consent:</strong> By accessing our website, creating an account, browsing educator profiles, submitting tuition inquiries, registering as an educator, or clicking "I Agree" during onboarding, you explicitly acknowledge that you have read, understood, and agreed to be bound by these Terms, our <Link to="/responsibility-policy" className="text-terracotta-600 font-bold underline">Platform Role & Responsibility Policy</Link>, and our <Link to="/safety-guidelines" className="text-terracotta-600 font-bold underline">Safety Guidelines</Link>.
+                  1.2. <strong>Affirmation of Consent:</strong> By accessing our website, creating an account, browsing educator profiles, submitting tuition inquiries, registering as an educator, or checking the policy agreement checkbox during onboarding, you explicitly acknowledge that you have read, understood, and unconditionally agreed to be bound by these Terms, our <Link to="/responsibility-policy" className="text-terracotta-600 font-bold underline">Platform Role & Responsibility Policy</Link>, and our <Link to="/safety-guidelines" className="text-terracotta-600 font-bold underline">Safety Guidelines</Link>.
                 </p>
                 <p>
                   1.3. <strong>Immediate Revocation upon Dissent:</strong> If you do not agree to every provision contained within these Terms, you must immediately refrain from creating an account and cease all utilization of our portal and services.
@@ -308,28 +320,124 @@ export default function TermsAndConditionsPage() {
               </div>
             </section>
 
-            {/* SECTION 5 */}
-            <section id="section-5" className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-2xs space-y-4">
+            {/* SECTION 5: DATA STORAGE, USE OF DATA & ZERO THIRD-PARTY SHARING */}
+            <section id="section-5" className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-2xs space-y-5">
               <div className="flex items-center gap-3 pb-3 border-b border-stone-100">
-                <div className="w-8 h-8 rounded-lg bg-brand-50 text-brand-900 flex items-center justify-center font-bold text-sm">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold text-sm">
                   5
                 </div>
-                <h2 className="font-serif text-xl font-bold text-stone-900">
-                  Educator Verification & Document Integrity
-                </h2>
+                <div>
+                  <h2 className="font-serif text-xl font-bold text-stone-900">
+                    Data Storage, Purpose of Use & Strict Zero Third-Party Sharing Guarantee
+                  </h2>
+                  <span className="text-[11px] text-stone-500 font-medium">
+                    Compliant with the Digital Personal Data Protection (DPDP) Act, 2023 & Information Technology Act, 2000
+                  </span>
+                </div>
               </div>
-              <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3">
-                <p>
-                  5.1. <strong>Mandatory Document Submissions:</strong> Educators seeking public directory listing must submit valid government-issued photo identification (Aadhaar Card, Indian Passport, or Voter ID) and verifiable highest academic degree certificates.
+
+              {/* Strict Zero-Sharing Callout Badge */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50/80 border border-emerald-300 text-emerald-950 text-xs sm:text-sm space-y-2 shadow-xs">
+                <div className="flex items-center gap-2 font-bold text-emerald-900 text-sm sm:text-base">
+                  <ShieldCheck className="w-5 h-5 text-emerald-700 shrink-0" />
+                  <span>Our Binding Non-Disclosure Commitment: We Do Not Share or Sell Your Data</span>
+                </div>
+                <p className="text-stone-700 leading-relaxed text-xs sm:text-sm">
+                  {siteName} maintains an uncompromising policy of personal privacy and confidentiality. <strong>We strictly DO NOT sell, rent, lease, monetize, trade, barter, or share your personal information, phone numbers, email addresses, residential details, or academic records with any third-party advertisers, telemarketing agencies, insurance brokers, data aggregators, or external companies under any circumstances.</strong> Your data is stored securely and used solely and exclusively to facilitate direct home tuition matchmaking.
                 </p>
+              </div>
+
+              {/* 3 Structured Column Cards for Visual Clarity */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs">
+                <div className="p-4 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
+                  <span className="font-bold text-stone-900 block text-xs uppercase tracking-wider text-brand-900 flex items-center gap-1.5">
+                    <Database className="w-4 h-4 text-brand-800" />
+                    <span>1. What Data We Store</span>
+                  </span>
+                  <ul className="text-stone-600 space-y-1.5 list-disc pl-4 leading-relaxed">
+                    <li><strong>Contact & Identity:</strong> Full Name, verified Email (OTP confirmed), Phone number, and bcrypt-salted hashed password.</li>
+                    <li><strong>Geographic Location:</strong> State, City/District, Locality/Village, House location, Nearest Landmark, and 6-digit PIN Code.</li>
+                    <li><strong>Academic Profile:</strong> Student grade/class, board (CBSE, ICSE, etc.), subjects needed, school, and learning mode preferences.</li>
+                    <li><strong>Tutor Credentials:</strong> Stated qualifications, degrees, experience, rates, and uploaded ID/degree verification documents.</li>
+                    <li><strong>Agreement Timestamps:</strong> Exact digital record of the date, time (IST), and timestamp when platform policies were accepted.</li>
+                  </ul>
+                </div>
+
+                <div className="p-4 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
+                  <span className="font-bold text-stone-900 block text-xs uppercase tracking-wider text-emerald-900 flex items-center gap-1.5">
+                    <Users className="w-4 h-4 text-emerald-700" />
+                    <span>2. How We Use Your Data</span>
+                  </span>
+                  <ul className="text-stone-600 space-y-1.5 list-disc pl-4 leading-relaxed">
+                    <li><strong>1-on-1 Tuition Matching:</strong> Finding educators near your PIN code who teach your requested subjects and syllabus boards.</li>
+                    <li><strong>Facilitating Inquiries:</strong> Transmitting student tuition requests directly to selected tutors for introductory scheduling.</li>
+                    <li><strong>Credential Auditing:</strong> Inspecting submitted teacher degrees and government IDs prior to granting verification checkmark badges.</li>
+                    <li><strong>Account Security:</strong> Validating email ownership via OTP, password reset tokens, and preventing burner/bot accounts.</li>
+                    <li><strong>Critical Service Alerts:</strong> Sending urgent notifications regarding inquiry responses or safety updates.</li>
+                  </ul>
+                </div>
+
+                <div className="p-4 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
+                  <span className="font-bold text-stone-900 block text-xs uppercase tracking-wider text-blue-900 flex items-center gap-1.5">
+                    <Lock className="w-4 h-4 text-blue-700" />
+                    <span>3. How Your Data is Protected</span>
+                  </span>
+                  <ul className="text-stone-600 space-y-1.5 list-disc pl-4 leading-relaxed">
+                    <li><strong>Zero External Sharing:</strong> Zero data sales, zero telemarketing lists, and zero third-party commercial exploitation.</li>
+                    <li><strong>Encrypted Passwords:</strong> Passwords are one-way hashed with bcrypt; plaintext passwords are never visible or retrievable.</li>
+                    <li><strong>Encrypted Infrastructure:</strong> Secured database hosting on MongoDB Atlas with TLS 1.3 in-transit and AES-256 storage encryption.</li>
+                    <li><strong>Strict Role-Based Access:</strong> Verification documents are accessible solely to authorized central audit personnel.</li>
+                    <li><strong>Deletion on Demand:</strong> Right to request total erasure of personal profiles from our database at any time.</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Comprehensive Legal Clauses */}
+              <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3.5 pt-2">
                 <p>
-                  5.2. <strong>Significance of the "Verified" Badge:</strong> The verified status badge displayed on an educator's profile certifies solely that {siteName}'s administrative staff have audited the educator's submitted documents against platform compliance standards.
+                  5.1. <strong>Scope of Data Collection & Storage:</strong> To operate a secure, reliable, and verified home tuition directory, {siteName} collects and securely stores the following specific categories of user information in its cloud database:
                 </p>
+                <ul className="list-disc pl-5 space-y-1.5 text-stone-600">
+                  <li><strong>Personal Contact Identification:</strong> Legal full name, verified email address (confirmed through mandatory 6-digit email OTP), primary contact phone number, and account avatar;</li>
+                  <li><strong>Cryptographically Hashed Passwords:</strong> All account passwords are encrypted using industry-standard bcrypt cryptographic hashing before storage. The Company does not, and cannot, store or view raw plaintext passwords;</li>
+                  <li><strong>Geographic & Doorstep Address Details:</strong> State, postal district/city, locality, house/residential location, landmark, and 6-digit postal index number (PIN code) provided to compute geographical proximity between educators and students;</li>
+                  <li><strong>Academic & Learning Specifications:</strong> Student grade level, educational board affiliation (e.g., CBSE, ICSE/ISC, State Board, IB, Cambridge), target subjects required, school name, preferred teaching mode (home visit, online, or tutor's residence), and specific learning goals;</li>
+                  <li><strong>Educator Professional Profile:</strong> Academic qualifications, university degrees, years of verified teaching experience, subject competencies, classes handled, monthly and hourly tuition rates, public biography, and teaching achievements;</li>
+                  <li><strong>Audit Documents for Verification:</strong> Government-issued identity proofs (e.g., Aadhaar card, Indian Passport, or Voter ID) and degree certificates uploaded by educators for official badge verification audits;</li>
+                  <li><strong>Digital Timestamp of Policy Agreement:</strong> In compliance with digital audit standards, whenever a user registers and checks the policy agreement checkbox, {siteName} records the exact date, time, and timestamp (in Indian Standard Time - IST) along with the agreement affirmation in the database.</li>
+                </ul>
+
                 <p>
-                  5.3. <strong>No Endorsement or Character Warranty:</strong> A verification badge <strong>does not</strong> constitute an endorsement, character warranty, moral certification, continuous physical guarantee, or criminal background guarantee. Parents are required to perform their own independent due diligence, inspect original hard-copy certificates, and assess educator suitability prior to commencing classes.
+                  5.2. <strong>Purpose Limitation — How Stored Data is Utilized:</strong> User data collected by {siteName} is strictly utilized for the following limited and legitimate purposes:
                 </p>
+                <ul className="list-disc pl-5 space-y-1.5 text-stone-600">
+                  <li><strong>Accurate Academic Matchmaking:</strong> Enabling parents and students to filter and discover verified tutors based on local PIN codes, target subjects, grades, and boards;</li>
+                  <li><strong>Direct Tuition Inquiries:</strong> Enabling registered parents to send tuition inquiries directly to prospective educators with necessary student learning details;</li>
+                  <li><strong>Verification Audits:</strong> Enabling authorized administrative personnel to inspect and audit uploaded credentials before granting the official "Verified Educator" checkmark badge;</li>
+                  <li><strong>Authentication & Security:</strong> Verifying user authenticity, transmitting one-time verification passwords (OTPs), executing password resets, and blocking disposable or fraudulent accounts;</li>
+                  <li><strong>Administrative Support:</strong> Providing customer support, responding to user grievances, and communicating critical operational notices.</li>
+                </ul>
+
                 <p>
-                  5.4. <strong>Document Forgery Penalty:</strong> Submitting altered, forged, fraudulent, or impersonated documents will lead to immediate permanent ban, forfeiture of profile listings, and reporting to legal authorities.
+                  5.3. <strong>Absolute Zero Third-Party Sharing & No Data Sale Guarantee:</strong>
+                </p>
+                <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 text-stone-800 space-y-2">
+                  <p>
+                    (a) <strong>Zero Commercial Sale or Monetization:</strong> {siteName} explicitly pledges and warrants that it does NOT sell, rent, monetize, license, trade, barter, or distribute user personal data, contact phone numbers, or email addresses to any third-party marketing agencies, telemarketers, commercial aggregators, credit card promoters, insurance companies, or data brokers.
+                  </p>
+                  <p>
+                    (b) <strong>No Behavioral Ad Tracking:</strong> The platform does not deploy third-party advertising network pixels, tracking cookies, or surveillance mechanisms designed to harvest personal information for third-party targeted advertisements.
+                  </p>
+                  <p>
+                    (c) <strong>Limited Mutual Disclosure for Matchmaking Only:</strong> Contact details (such as parent contact phone number or tutor phone number) are only exchanged between two directly matched parties when a parent voluntarily submits a direct tuition inquiry to an educator and that educator reviews or accepts the connection.
+                  </p>
+                  <p>
+                    (d) <strong>Statutory Disclosures:</strong> Personal information shall never be disclosed to external parties except when strictly required under a lawful subpoena, search warrant, court order, or formal directive issued by a recognized Indian law enforcement authority or court of competent jurisdiction under the Information Technology Act, 2000.
+                  </p>
+                </div>
+
+                <p>
+                  5.4. <strong>Data Retention & Erasure (Right to be Forgotten):</strong> Users retain full sovereignty over their personal data. You may review, update, or edit your profile information at any time via your account dashboard. Should you choose to close your account, you may request permanent deletion of your profile, verification files, and stored records from our database by submitting a written request to <a href={`mailto:${supportEmail}`} className="text-terracotta-600 font-bold underline">{supportEmail}</a>. Deletion shall be executed within thirty (30) business days, subject only to statutory record-retention requirements under Indian law.
                 </p>
               </div>
             </section>
@@ -341,18 +449,21 @@ export default function TermsAndConditionsPage() {
                   6
                 </div>
                 <h2 className="font-serif text-xl font-bold text-stone-900">
-                  Direct Payments & 0% Platform Commission
+                  Educator Verification & Document Integrity
                 </h2>
               </div>
               <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3">
                 <p>
-                  6.1. <strong>Zero Commission Guarantee:</strong> {siteName} does NOT charge commission cuts, percentage royalties, or referral cuts from educator tuition earnings. Educators retain 100% of the tuition fees mutually agreed upon with parents.
+                  6.1. <strong>Mandatory Document Submissions:</strong> Educators seeking public directory listing must submit valid government-issued photo identification (Aadhaar Card, Indian Passport, or Voter ID) and verifiable highest academic degree certificates.
                 </p>
                 <p>
-                  6.2. <strong>Direct Financial Settlement:</strong> All financial transactions, monthly tuition fees, hourly rates, and payment terms are executed directly between the parent/student and the educator via cash, direct UPI, or bank transfer.
+                  6.2. <strong>Significance of the "Verified" Badge:</strong> The verified status badge displayed on an educator's profile certifies solely that {siteName}'s administrative staff have audited the educator's submitted documents against platform compliance standards.
                 </p>
                 <p>
-                  6.3. <strong>No Financial Intermediation or Refunds:</strong> {siteName} does not collect, receive, hold, or escrow tuition payments. Consequently, {siteName} has zero financial liability, makes no tuition refunds, and shall not be drawn into fee disputes, advance payments, cancellations, or payment defaults.
+                  6.3. <strong>No Endorsement or Character Warranty:</strong> A verification badge <strong>does not</strong> constitute an endorsement, character warranty, moral certification, continuous physical guarantee, or criminal background guarantee. Parents are required to perform their own independent due diligence, inspect original hard-copy certificates, and assess educator suitability prior to commencing classes.
+                </p>
+                <p>
+                  6.4. <strong>Document Forgery Penalty:</strong> Submitting altered, forged, fraudulent, or impersonated documents will lead to immediate permanent ban, forfeiture of profile listings, and reporting to legal authorities.
                 </p>
               </div>
             </section>
@@ -364,18 +475,18 @@ export default function TermsAndConditionsPage() {
                   7
                 </div>
                 <h2 className="font-serif text-xl font-bold text-stone-900">
-                  Lesson Logistics & Doorstep Safety Norms
+                  Direct Payments & 0% Platform Commission
                 </h2>
               </div>
               <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3">
                 <p>
-                  7.1. <strong>Private Mutual Arrangements:</strong> Class timings, holiday schedules, syllabus pacing, and cancellation rules are to be mutually agreed in writing (email or messaging) directly between the tutor and the parent.
+                  7.1. <strong>Zero Commission Guarantee:</strong> {siteName} does NOT charge commission cuts, percentage royalties, or referral cuts from educator tuition earnings. Educators retain 100% of the tuition fees mutually agreed upon with parents.
                 </p>
                 <p>
-                  7.2. <strong>Open Door & Transparent Study Area:</strong> Offline home tuition must always take place in a well-lit common area of the residence (such as a living room, dining area, or study with open doors). Tutoring inside closed private bedrooms is strictly discouraged.
+                  7.2. <strong>Direct Financial Settlement:</strong> All financial transactions, monthly tuition fees, hourly rates, and payment terms are executed directly between the parent/student and the educator via cash, direct UPI, or bank transfer.
                 </p>
                 <p>
-                  7.3. <strong>Right to Discontinue:</strong> Both educators and parents reserve the unconditional right to discontinue lessons at any juncture if they observe inappropriate conduct, safety violations, or mutual incompatibility.
+                  7.3. <strong>No Financial Intermediation or Refunds:</strong> {siteName} does not collect, receive, hold, or escrow tuition payments. Consequently, {siteName} has zero financial liability, makes no tuition refunds, and shall not be drawn into fee disputes, advance payments, cancellations, or payment defaults.
                 </p>
               </div>
             </section>
@@ -383,8 +494,31 @@ export default function TermsAndConditionsPage() {
             {/* SECTION 8 */}
             <section id="section-8" className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-2xs space-y-4">
               <div className="flex items-center gap-3 pb-3 border-b border-stone-100">
-                <div className="w-8 h-8 rounded-lg bg-red-50 text-red-700 flex items-center justify-center font-bold text-sm">
+                <div className="w-8 h-8 rounded-lg bg-brand-50 text-brand-900 flex items-center justify-center font-bold text-sm">
                   8
+                </div>
+                <h2 className="font-serif text-xl font-bold text-stone-900">
+                  Lesson Logistics & Doorstep Safety Norms
+                </h2>
+              </div>
+              <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3">
+                <p>
+                  8.1. <strong>Private Mutual Arrangements:</strong> Class timings, holiday schedules, syllabus pacing, and cancellation rules are to be mutually agreed in writing (email or messaging) directly between the tutor and the parent.
+                </p>
+                <p>
+                  8.2. <strong>Open Door & Transparent Study Area:</strong> Offline home tuition must always take place in a well-lit common area of the residence (such as a living room, dining area, or study with open doors). Tutoring inside closed private bedrooms is strictly discouraged.
+                </p>
+                <p>
+                  8.3. <strong>Right to Discontinue:</strong> Both educators and parents reserve the unconditional right to discontinue lessons at any juncture if they observe inappropriate conduct, safety violations, or mutual incompatibility.
+                </p>
+              </div>
+            </section>
+
+            {/* SECTION 9 */}
+            <section id="section-9" className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-2xs space-y-4">
+              <div className="flex items-center gap-3 pb-3 border-b border-stone-100">
+                <div className="w-8 h-8 rounded-lg bg-red-50 text-red-700 flex items-center justify-center font-bold text-sm">
+                  9
                 </div>
                 <h2 className="font-serif text-xl font-bold text-stone-900">
                   Prohibited Conduct & Zero Child Harm Policy
@@ -392,13 +526,13 @@ export default function TermsAndConditionsPage() {
               </div>
               <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3">
                 <p>
-                  8.1. <strong>Absolute Zero Tolerance for Child Abuse:</strong> Any form of verbal abuse, physical chastisement, inappropriate physical contact, sexual harassment, emotional intimidation, or exploitation of minor students is strictly illegal under the Protection of Children from Sexual Offences (POCSO) Act, 2012, and Indian law.
+                  9.1. <strong>Absolute Zero Tolerance for Child Abuse:</strong> Any form of verbal abuse, physical chastisement, inappropriate physical contact, sexual harassment, emotional intimidation, or exploitation of minor students is strictly illegal under the Protection of Children from Sexual Offences (POCSO) Act, 2012, and Indian law.
                 </p>
                 <p>
-                  8.2. <strong>Immediate Legal Reporting:</strong> In the event of any allegation or suspicion of child abuse, {siteName} will immediately deactivate the accused party's account and cooperate fully with law enforcement authorities.
+                  9.2. <strong>Immediate Legal Reporting:</strong> In the event of any allegation or suspicion of child abuse, {siteName} will immediately deactivate the accused party's account and cooperate fully with law enforcement authorities.
                 </p>
                 <p>
-                  8.3. <strong>Prohibited Platform Activities:</strong> Users shall not:
+                  9.3. <strong>Prohibited Platform Activities:</strong> Users shall not:
                 </p>
                 <ul className="list-disc pl-5 space-y-1.5 text-stone-600">
                   <li>Use automated web crawlers, scrapers, or bots to harvest tutor phone numbers or platform data;</li>
@@ -410,29 +544,6 @@ export default function TermsAndConditionsPage() {
               </div>
             </section>
 
-            {/* SECTION 9 */}
-            <section id="section-9" className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-2xs space-y-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-stone-100">
-                <div className="w-8 h-8 rounded-lg bg-brand-50 text-brand-900 flex items-center justify-center font-bold text-sm">
-                  9
-                </div>
-                <h2 className="font-serif text-xl font-bold text-stone-900">
-                  Parent Reviews, Ratings & Content Rules
-                </h2>
-              </div>
-              <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3">
-                <p>
-                  9.1. <strong>Authentic Experience Requirement:</strong> Reviews and star ratings may only be submitted by registered students or parents who have genuinely engaged with the educator for at least 30 days following an accepted tuition inquiry.
-                </p>
-                <p>
-                  9.2. <strong>Fair Feedback & Defamation Prohibition:</strong> Reviews must represent honest, constructive academic experiences. Users may not post abusive, slanderous, extortionate, or vindictive remarks.
-                </p>
-                <p>
-                  9.3. <strong>Editorial Moderation Rights:</strong> {siteName} reserves the right, in its sole discretion, to investigate, moderate, or remove reviews that violate content guidelines, contain foul language, or represent proven malicious smear campaigns.
-                </p>
-              </div>
-            </section>
-
             {/* SECTION 10 */}
             <section id="section-10" className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-2xs space-y-4">
               <div className="flex items-center gap-3 pb-3 border-b border-stone-100">
@@ -440,18 +551,18 @@ export default function TermsAndConditionsPage() {
                   10
                 </div>
                 <h2 className="font-serif text-xl font-bold text-stone-900">
-                  Intellectual Property Rights
+                  Parent Reviews, Ratings & Content Rules
                 </h2>
               </div>
               <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3">
                 <p>
-                  10.1. <strong>Proprietary Assets:</strong> All trademarks, logos, service marks, website architecture, user interface elements, graphic designs, algorithms, codebases, and domain names associated with {siteName} are the exclusive intellectual property of {companyName}.
+                  10.1. <strong>Authentic Experience Requirement:</strong> Reviews and star ratings may only be submitted by registered students or parents who have genuinely engaged with the educator for at least 30 days following an accepted tuition inquiry.
                 </p>
                 <p>
-                  10.2. <strong>Limited License:</strong> Users are granted a limited, non-exclusive, non-transferable, and revocable license to access and use the platform solely for personal, non-commercial home tutor matching purposes.
+                  10.2. <strong>Fair Feedback & Defamation Prohibition:</strong> Reviews must represent honest, constructive academic experiences. Users may not post abusive, slanderous, extortionate, or vindictive remarks.
                 </p>
                 <p>
-                  10.3. <strong>User Content License:</strong> By posting profile details, photographs, or reviews on {siteName}, you grant the Company a royalty-free, worldwide license to host, display, and index such material across the platform.
+                  10.3. <strong>Editorial Moderation Rights:</strong> {siteName} reserves the right, in its sole discretion, to investigate, moderate, or remove reviews that violate content guidelines, contain foul language, or represent proven malicious smear campaigns.
                 </p>
               </div>
             </section>
@@ -463,18 +574,18 @@ export default function TermsAndConditionsPage() {
                   11
                 </div>
                 <h2 className="font-serif text-xl font-bold text-stone-900">
-                  Disclaimer of Warranties & Academic Outcomes
+                  Intellectual Property Rights
                 </h2>
               </div>
               <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3">
                 <p>
-                  11.1. <strong>"As Is" Service Delivery:</strong> The {siteName} platform, directory listings, search filters, and verification features are provided strictly on an "AS IS" and "AS AVAILABLE" basis without warranties of any kind, whether express, statutory, or implied.
+                  11.1. <strong>Proprietary Assets:</strong> All trademarks, logos, service marks, website architecture, user interface elements, graphic designs, algorithms, codebases, and domain names associated with {siteName} are the exclusive intellectual property of {companyName}.
                 </p>
                 <p>
-                  11.2. <strong>No Warranty of Academic Outcomes:</strong> {siteName} expressly disclaims any warranty that home tutoring arranged via the platform will guarantee specific school examination marks, entrance ranks, competitive test qualifications, or behavioral transformations. Academic achievement depends on individual student diligence and private teaching efficacy.
+                  11.2. <strong>Limited License:</strong> Users are granted a limited, non-exclusive, non-transferable, and revocable license to access and use the platform solely for personal, non-commercial home tutor matching purposes.
                 </p>
                 <p>
-                  11.3. <strong>Uptime & Connectivity:</strong> While we endeavor to maintain uninterrupted platform availability, we do not warrant that our servers will be error-free, immune to cyber attacks, or perpetually accessible.
+                  11.3. <strong>User Content License:</strong> By posting profile details, photographs, or reviews on {siteName}, you grant the Company a royalty-free, worldwide license to host, display, and index such material across the platform.
                 </p>
               </div>
             </section>
@@ -486,24 +597,18 @@ export default function TermsAndConditionsPage() {
                   12
                 </div>
                 <h2 className="font-serif text-xl font-bold text-stone-900">
-                  Limitation of Liability & Indemnification
+                  Disclaimer of Warranties & Academic Outcomes
                 </h2>
               </div>
               <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3">
                 <p>
-                  12.1. <strong>Liability Cap:</strong> To the maximum extent permitted under applicable law, {companyName}, its directors, officers, employees, and agents shall NOT be liable for any direct, indirect, incidental, punitive, special, or consequential damages resulting from:
-                </p>
-                <ul className="list-disc pl-5 space-y-1 text-stone-600">
-                  <li>Any personal injury, theft, property loss, or damage occurring on private home premises;</li>
-                  <li>Any financial defaults, fee disputes, or non-payment between tutors and parents;</li>
-                  <li>Any cancellations, tardiness, or breach of private teaching agreements;</li>
-                  <li>Any defamatory or inappropriate conduct between users.</li>
-                </ul>
-                <p>
-                  12.2. <strong>Statutory Cap:</strong> In any circumstance where liability is judicially determined, the Company's aggregate liability to any user shall be strictly limited to the amount paid by that user to {siteName} in the preceding 3 months, or INR ₹1,000, whichever is lower.
+                  12.1. <strong>"As Is" Service Delivery:</strong> The {siteName} platform, directory listings, search filters, and verification features are provided strictly on an "AS IS" and "AS AVAILABLE" basis without warranties of any kind, whether express, statutory, or implied.
                 </p>
                 <p>
-                  12.3. <strong>Indemnity Obligation:</strong> You agree to defend, indemnify, and hold harmless {companyName}, its officers, and affiliates against any claims, losses, liabilities, costs, or legal fees arising from your use of the platform, your breach of these Terms, or your private offline conduct.
+                  12.2. <strong>No Warranty of Academic Outcomes:</strong> {siteName} expressly disclaims any warranty that home tutoring arranged via the platform will guarantee specific school examination marks, entrance ranks, competitive test qualifications, or behavioral transformations. Academic achievement depends on individual student diligence and private teaching efficacy.
+                </p>
+                <p>
+                  12.3. <strong>Uptime & Connectivity:</strong> While we endeavor to maintain uninterrupted platform availability, we do not warrant that our servers will be error-free, immune to cyber attacks, or perpetually accessible.
                 </p>
               </div>
             </section>
@@ -515,22 +620,24 @@ export default function TermsAndConditionsPage() {
                   13
                 </div>
                 <h2 className="font-serif text-xl font-bold text-stone-900">
-                  Suspension & Account Termination
+                  Limitation of Liability & Indemnification
                 </h2>
               </div>
               <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3">
                 <p>
-                  13.1. <strong>Administrative Action:</strong> {siteName} reserves the absolute right to suspend, restrict, block, or delete any student, parent, or tutor account without prior notice if we determine, in our sole discretion, that a user has:
+                  13.1. <strong>Liability Cap:</strong> To the maximum extent permitted under applicable law, {companyName}, its directors, officers, employees, and agents shall NOT be liable for any direct, indirect, incidental, punitive, special, or consequential damages resulting from:
                 </p>
                 <ul className="list-disc pl-5 space-y-1 text-stone-600">
-                  <li>Breached any provision of these Terms or related platform policies;</li>
-                  <li>Submitted fake, disposable, or unverified email addresses;</li>
-                  <li>Uploaded forged, altered, or suspicious identity or degree documents;</li>
-                  <li>Received verified complaints from parents or teachers regarding abusive or unsafe behavior;</li>
-                  <li>Engaged in spamming or platform data harvesting.</li>
+                  <li>Any personal injury, theft, property loss, or damage occurring on private home premises;</li>
+                  <li>Any financial defaults, fee disputes, or non-payment between tutors and parents;</li>
+                  <li>Any cancellations, tardiness, or breach of private teaching agreements;</li>
+                  <li>Any defamatory or inappropriate conduct between users.</li>
                 </ul>
                 <p>
-                  13.2. <strong>Account Deletion by User:</strong> You may request deletion of your account at any time by contacting our administrative desk at {supportEmail}.
+                  13.2. <strong>Statutory Cap:</strong> In any circumstance where liability is judicially determined, the Company's aggregate liability to any user shall be strictly limited to the amount paid by that user to {siteName} in the preceding 3 months, or INR ₹1,000, whichever is lower.
+                </p>
+                <p>
+                  13.3. <strong>Indemnity Obligation:</strong> You agree to defend, indemnify, and hold harmless {companyName}, its officers, and affiliates against any claims, losses, liabilities, costs, or legal fees arising from your use of the platform, your breach of these Terms, or your private offline conduct.
                 </p>
               </div>
             </section>
@@ -542,18 +649,45 @@ export default function TermsAndConditionsPage() {
                   14
                 </div>
                 <h2 className="font-serif text-xl font-bold text-stone-900">
+                  Suspension & Account Termination
+                </h2>
+              </div>
+              <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3">
+                <p>
+                  14.1. <strong>Administrative Action:</strong> {siteName} reserves the absolute right to suspend, restrict, block, or delete any student, parent, or tutor account without prior notice if we determine, in our sole discretion, that a user has:
+                </p>
+                <ul className="list-disc pl-5 space-y-1 text-stone-600">
+                  <li>Breached any provision of these Terms or related platform policies;</li>
+                  <li>Submitted fake, disposable, or unverified email addresses;</li>
+                  <li>Uploaded forged, altered, or suspicious identity or degree documents;</li>
+                  <li>Received verified complaints from parents or teachers regarding abusive or unsafe behavior;</li>
+                  <li>Engaged in spamming or platform data harvesting.</li>
+                </ul>
+                <p>
+                  14.2. <strong>Account Deletion by User:</strong> You may request deletion of your account at any time by contacting our administrative desk at {supportEmail}.
+                </p>
+              </div>
+            </section>
+
+            {/* SECTION 15 */}
+            <section id="section-15" className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-2xs space-y-4">
+              <div className="flex items-center gap-3 pb-3 border-b border-stone-100">
+                <div className="w-8 h-8 rounded-lg bg-brand-50 text-brand-900 flex items-center justify-center font-bold text-sm">
+                  15
+                </div>
+                <h2 className="font-serif text-xl font-bold text-stone-900">
                   Governing Law & Grievance Redressal
                 </h2>
               </div>
               <div className="text-xs sm:text-sm text-stone-700 leading-relaxed space-y-3">
                 <p>
-                  14.1. <strong>Jurisdiction:</strong> These Terms shall be interpreted and governed exclusively by the laws of the Republic of India. The courts of competent jurisdiction located at New Delhi / Gautam Buddha Nagar (Noida), Uttar Pradesh, India, shall have exclusive territorial jurisdiction over any disputes arising under this agreement.
+                  15.1. <strong>Jurisdiction:</strong> These Terms shall be interpreted and governed exclusively by the laws of the Republic of India. The courts of competent jurisdiction located at New Delhi / Gautam Buddha Nagar (Noida), Uttar Pradesh, India, shall have exclusive territorial jurisdiction over any disputes arising under this agreement.
                 </p>
                 <p>
-                  14.2. <strong>Arbitration:</strong> Any dispute or difference arising out of or in connection with these Terms shall first be attempted to be resolved amicably through good-faith mutual negotiations for a period of 30 days before initiating any formal legal proceedings.
+                  15.2. <strong>Arbitration:</strong> Any dispute or difference arising out of or in connection with these Terms shall first be attempted to be resolved amicably through good-faith mutual negotiations for a period of 30 days before initiating any formal legal proceedings.
                 </p>
                 <p>
-                  14.3. <strong>Designated Grievance Officer:</strong> In compliance with the Information Technology Act, 2000, and rules framed thereunder, the contact details of the Grievance Redressal Officer are provided below:
+                  15.3. <strong>Designated Grievance Officer:</strong> In compliance with the Information Technology Act, 2000, and rules framed thereunder, the contact details of the Grievance Redressal Officer are provided below:
                 </p>
 
                 <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-800 space-y-1.5">
@@ -575,10 +709,10 @@ export default function TermsAndConditionsPage() {
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <h3 className="font-serif text-xl font-bold text-stone-900">
-            Clear Policies Build Safe Learning Relationships
+            Clear Policies & Strict Privacy Build Safe Learning Relationships
           </h3>
           <p className="text-stone-600 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed">
-            By registering with {siteName}, both educators and parents partner with mutual respect, commitment to child safety, and high academic integrity.
+            By registering with {siteName}, both educators and parents partner with mutual respect, commitment to child safety, absolute privacy protection, and high academic integrity.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-xs font-bold">
             <Link

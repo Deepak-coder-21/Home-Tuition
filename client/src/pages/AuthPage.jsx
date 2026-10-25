@@ -260,6 +260,7 @@ export default function AuthPage() {
       email: studentForm.email.trim(),
       password: studentForm.password,
       agreedToPolicy: true,
+      agreedToPolicyAt: new Date().toISOString(),
       role: 'student'
     };
 
@@ -283,7 +284,12 @@ export default function AuthPage() {
 
       dispatch(registerStudent({
         id: data.user?._id || `usr-student-${Date.now()}`,
-        ...studentPayload
+        ...studentPayload,
+        agreedToPolicy: true,
+        agreedToPolicyAt: data.user?.agreedToPolicyAt || studentPayload.agreedToPolicyAt,
+        agreedToPolicyDate: data.user?.agreedToPolicyDate || '',
+        agreedToPolicyTime: data.user?.agreedToPolicyTime || '',
+        agreedToPolicyFormatted: data.user?.agreedToPolicyFormatted || ''
       }));
     } catch {
       setIsSubmitting(false);
@@ -333,6 +339,7 @@ export default function AuthPage() {
           email: tutorForm.email.trim(),
           password: tutorForm.password,
           agreedToPolicy: true,
+          agreedToPolicyAt: new Date().toISOString(),
           phone: tutorForm.phone.trim(),
           tagline: tutorForm.tagline.trim(),
           qualification: tutorForm.qualification,
@@ -400,7 +407,12 @@ export default function AuthPage() {
           "Newly verified educator on VidyaNest",
           "Comprehensive 1-on-1 personalized teaching methodology"
         ],
-        reviews: []
+        reviews: [],
+        agreedToPolicy: true,
+        agreedToPolicyAt: data.user?.agreedToPolicyAt || new Date().toISOString(),
+        agreedToPolicyDate: data.user?.agreedToPolicyDate || '',
+        agreedToPolicyTime: data.user?.agreedToPolicyTime || '',
+        agreedToPolicyFormatted: data.user?.agreedToPolicyFormatted || ''
       };
 
       dispatch(addNewTutor(newTutorObject));
@@ -410,7 +422,12 @@ export default function AuthPage() {
         _id: data.user?._id || newTutorObject.id,
         password: tutorForm.password,
         phone: tutorForm.phone,
-        email: tutorForm.email
+        email: tutorForm.email,
+        agreedToPolicy: true,
+        agreedToPolicyAt: data.user?.agreedToPolicyAt || newTutorObject.agreedToPolicyAt,
+        agreedToPolicyDate: data.user?.agreedToPolicyDate || '',
+        agreedToPolicyTime: data.user?.agreedToPolicyTime || '',
+        agreedToPolicyFormatted: data.user?.agreedToPolicyFormatted || ''
       }));
     } catch {
       setIsSubmitting(false);

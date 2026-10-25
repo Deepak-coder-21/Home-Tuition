@@ -230,3 +230,139 @@ export function getInitialPlaces(districtName, stateName = '') {
   }
   return [];
 }
+
+/**
+ * Match state name returned from Postal API to the available states dropdown options
+ */
+export function matchStateOption(postalState, availableStates = []) {
+  if (!postalState) return '';
+  const clean = postalState.toLowerCase().trim();
+  if (!availableStates || availableStates.length === 0) return postalState;
+
+  // 1. Exact match (case-insensitive)
+  const exact = availableStates.find(s => s.toLowerCase().trim() === clean);
+  if (exact) return exact;
+
+  // 2. Special cases: Delhi (prefer "Delhi NCR" or "Delhi (NCT)")
+  if (clean.includes('delhi')) {
+    const delhiNcr = availableStates.find(s => s.toLowerCase().includes('delhi ncr'));
+    if (delhiNcr) return delhiNcr;
+    const delhiNct = availableStates.find(s => s.toLowerCase().includes('delhi'));
+    if (delhiNct) return delhiNct;
+  }
+
+  // 3. Substring inclusion
+  const sub = availableStates.find(s => {
+    const sLow = s.toLowerCase().trim();
+    return sLow === clean || sLow.includes(clean) || clean.includes(sLow);
+  });
+  if (sub) return sub;
+
+  // 4. Jammu & Kashmir
+  if (clean.includes('kashmir') || clean.includes('jammu')) {
+    const jk = availableStates.find(s => s.toLowerCase().includes('jammu'));
+    if (jk) return jk;
+  }
+
+  // 5. Pondicherry / Puducherry
+  if (clean.includes('puducherry') || clean.includes('pondicherry')) {
+    const pondy = availableStates.find(s => s.toLowerCase().includes('puducherry') || s.toLowerCase().includes('pondicherry'));
+    if (pondy) return pondy;
+  }
+
+  // 6. Andaman & Nicobar
+  if (clean.includes('andaman')) {
+    const andaman = availableStates.find(s => s.toLowerCase().includes('andaman'));
+    if (andaman) return andaman;
+  }
+
+  return postalState;
+}
+
+/**
+ * Match district name returned from Postal API to the available districts dropdown options
+ */
+export function matchDistrictOption(postalDistrict, availableDistricts = []) {
+  if (!postalDistrict) return '';
+  if (!availableDistricts || availableDistricts.length === 0) return postalDistrict;
+
+  const rawClean = postalDistrict.toLowerCase().trim();
+  const clean = postalDistrict
+    .toLowerCase()
+    .replace(/\s*\(.*?\)\s*/g, '')
+    .replace(/\b(district|city|rural|urban)\b/gi, '')
+    .trim();
+
+  // 1. Exact match (case-insensitive)
+  const exact = availableDistricts.find(d => d.toLowerCase().trim() === rawClean);
+  if (exact) return exact;
+
+  // 2. Exact match on cleaned core name
+  const cleanExact = availableDistricts.find(d => {
+    const dClean = d
+      .toLowerCase()
+      .replace(/\s*\(.*?\)\s*/g, '')
+      .replace(/\b(district|city|rural|urban)\b/gi, '')
+      .trim();
+    return dClean === clean;
+  });
+  if (cleanExact) return cleanExact;
+
+  // 3. Bangalore / Bengaluru
+  if (clean.includes('bangalore') || clean.includes('bengaluru')) {
+    const bUrban = availableDistricts.find(d => d.toLowerCase().includes('urban'));
+    if (bUrban) return bUrban;
+    const bMatch = availableDistricts.find(d => d.toLowerCase().includes('bengaluru') || d.toLowerCase().includes('bangalore'));
+    if (bMatch) return bMatch;
+  }
+
+  // 4. Mumbai / Bombay
+  if (clean.includes('mumbai') || clean.includes('bombay')) {
+    const mSub = availableDistricts.find(d => d.toLowerCase().includes('mumbai suburban'));
+    if (mSub) return mSub;
+    const mCity = availableDistricts.find(d => d.toLowerCase().includes('mumbai city') || d.toLowerCase().includes('mumbai'));
+    if (mCity) return mCity;
+  }
+
+  // 5. Delhi districts (e.g. Central Delhi, South Delhi, New Delhi)
+  if (clean.includes('delhi')) {
+    const dMatch = availableDistricts.find(d => {
+      const dl = d.toLowerCase();
+      return dl.includes(clean) || clean.includes(dl);
+    });
+    if (dMatch) return dMatch;
+  }
+
+  // 6. Substring inclusion
+  const sub = availableDistricts.find(d => {
+    const dLow = d.toLowerCase();
+    return dLow.includes(clean) || clean.includes(dLow);
+  });
+  if (sub) return sub;
+
+  return postalDistrict;
+}
+
+/**
+ * Resolve full location from 6-digit PIN code with auto-matched state and district dropdown options
+ */
+export async function getPincodeLocation(pincode, availableStates = []) {
+  if (!pincode || !/^\d{6}$/.test(pincode.trim())) return null;
+  const pin = pincode.trim();
+
+  const res = await lookupPincode(pin);
+  if (!res || !res.state) return null;
+
+  const states = (availableStates && availableStates.length > 0) ? availableStates : (await getLiveStates());
+  const matchedState = matchStateOption(res.state, states);
+
+  const districts = await getLiveDistricts(matchedState);
+  const matchedDistrict = matchDistrictOption(res.district, districts);
+
+  return {
+    ...res,
+    matchedState,
+    matchedDistrict,
+    districts
+  };
+}

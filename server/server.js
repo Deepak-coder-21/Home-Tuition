@@ -15,6 +15,7 @@ import locationRoutes from './routes/locationRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import { startDocumentReminderScheduler } from './utils/documentReminderScheduler.js';
 import { syncAdminUser } from './utils/adminSync.js';
+import { globalApiLimiter } from './middleware/rateLimiter.js';
 
 // Connect to MongoDB & Synchronize Admin Account
 connectDB().then(() => {
@@ -22,6 +23,9 @@ connectDB().then(() => {
 });
 
 const app = express();
+
+// Trust reverse proxy (Netlify, Vercel, Render, Nginx) for accurate client IP rate limiting
+app.set('trust proxy', 1);
 
 // Middlewares
 app.use(express.json({ limit: '25mb' }));
@@ -115,10 +119,18 @@ app.get('/api/health', async (req, res) => {
       documentReminderScheduler: {
         status: 'running',
         rule: 'Send first notice after 24h of missing documents, repeat every 24h automatically'
+      },
+      rateLimiterSecurity: {
+        status: 'running',
+        engine: 'express-rate-limit',
+        rules: 'Global API (300/15m), Auth Login (10/15m), OTP Request (5/1h), OTP Verify (10/15m), Inquiries (15/1h), Reviews (10/1h)'
       }
     }
   });
 });
+
+// Apply Global Rate Limiting across all API routes (protects against DoS and scraper flooding)
+app.use('/api', globalApiLimiter);
 
 // Mount Routes
 app.use('/api/auth', authRoutes);

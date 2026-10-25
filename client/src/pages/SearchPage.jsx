@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { setFilter, resetFilters } from '../store/slices/filtersSlice';
 import FilterSidebar from '../components/search/FilterSidebar';
@@ -15,10 +16,44 @@ import {
 
 export default function SearchPage() {
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
   const { tutors } = useSelector((state) => state.tutors);
   const filters = useSelector((state) => state.filters);
 
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  // Sync URL search parameters (from Footer and external quick links) with Redux filter state
+  useEffect(() => {
+    const subjectParam = searchParams.get('subject');
+    const cityParam = searchParams.get('city');
+    const classParam = searchParams.get('class') || searchParams.get('grade');
+    const boardParam = searchParams.get('board');
+    const stateParam = searchParams.get('state');
+    const pinParam = searchParams.get('pincode') || searchParams.get('pin');
+    const queryParam = searchParams.get('q') || searchParams.get('search');
+
+    if (subjectParam) {
+      dispatch(setFilter({ key: 'selectedSubject', value: subjectParam }));
+    }
+    if (cityParam) {
+      dispatch(setFilter({ key: 'selectedCity', value: cityParam }));
+    }
+    if (classParam) {
+      dispatch(setFilter({ key: 'selectedClass', value: classParam }));
+    }
+    if (boardParam) {
+      dispatch(setFilter({ key: 'selectedBoard', value: boardParam }));
+    }
+    if (stateParam) {
+      dispatch(setFilter({ key: 'selectedState', value: stateParam }));
+    }
+    if (pinParam) {
+      dispatch(setFilter({ key: 'pincode', value: pinParam }));
+    }
+    if (queryParam) {
+      dispatch(setFilter({ key: 'searchQuery', value: queryParam }));
+    }
+  }, [searchParams, dispatch]);
 
   // Filter and Sort Logic
   const filteredTutors = useMemo(() => {
@@ -34,13 +69,36 @@ export default function SearchPage() {
         const matchesCity = (tutor.location?.city || '').toLowerCase().includes(query);
         const matchesLocality = (tutor.location?.localities || []).some(l => (l || '').toLowerCase().includes(query));
         const matchesQual = (tutor.qualification || '').toLowerCase().includes(query);
-        if (!matchesName && !matchesSubject && !matchesCity && !matchesLocality && !matchesQual) {
+        const matchesPincode = (tutor.location?.pincodes || []).some(p => (p || '').includes(query)) ||
+                               (tutor.location?.pincode || '').includes(query) ||
+                               (tutor.pincode || '').includes(query);
+        if (!matchesName && !matchesSubject && !matchesCity && !matchesLocality && !matchesQual && !matchesPincode) {
           return false;
         }
       }
 
-      // State
-      if (filters.selectedState) {
+      // 6-digit PIN Code Filter
+      const activePin = filters.pincode ? filters.pincode.trim() : '';
+      let isDirectPinMatch = false;
+      if (activePin) {
+        const allPins = [
+          ...(Array.isArray(tutor.location?.pincodes) ? tutor.location.pincodes : []),
+          tutor.location?.pincode,
+          tutor.pincode,
+          tutor.user?.pincode
+        ].filter(Boolean).map(p => String(p).trim());
+
+        isDirectPinMatch = allPins.some(p => p.includes(activePin) || activePin.includes(p));
+        const cityOrLocalityPinMatch = (tutor.location?.city || '').toLowerCase().includes(activePin) ||
+                                       (tutor.location?.localities || []).some(l => (l || '').toLowerCase().includes(activePin));
+
+        if (!isDirectPinMatch && !cityOrLocalityPinMatch) {
+          return false;
+        }
+      }
+
+      // State matching (if tutor directly covers the PIN, do not disqualify on state variation)
+      if (filters.selectedState && !isDirectPinMatch) {
         const sel = filters.selectedState.toLowerCase().trim();
         const tutorState = (tutor.location?.state || '').toLowerCase().trim();
         const matchesState = tutorState === sel ||
@@ -51,9 +109,27 @@ export default function SearchPage() {
         }
       }
 
-      // City
-      if (filters.selectedCity && tutor.location?.city !== filters.selectedCity) {
-        return false;
+      // City matching (if tutor directly covers the PIN, do not disqualify on postal district name variation)
+      if (filters.selectedCity && !isDirectPinMatch) {
+        const selCity = filters.selectedCity.toLowerCase().trim();
+        const tutorCity = (tutor.location?.city || '').toLowerCase().trim();
+        const isCityMatch = tutorCity === selCity ||
+          tutorCity.includes(selCity) ||
+          selCity.includes(tutorCity) ||
+          (selCity.includes('bangalore') && tutorCity.includes('bengaluru')) ||
+          (selCity.includes('bengaluru') && tutorCity.includes('bangalore')) ||
+          (selCity.includes('delhi') && tutorCity.includes('delhi')) ||
+          (selCity.includes('mumbai') && tutorCity.includes('bombay')) ||
+          (selCity.includes('bombay') && tutorCity.includes('mumbai')) ||
+          (selCity.includes('kolkata') && tutorCity.includes('calcutta')) ||
+          (selCity.includes('calcutta') && tutorCity.includes('kolkata')) ||
+          (selCity.includes('chennai') && tutorCity.includes('madras')) ||
+          (selCity.includes('madras') && tutorCity.includes('chennai')) ||
+          (selCity.includes('gurgaon') && tutorCity.includes('gurugram')) ||
+          (selCity.includes('gurugram') && tutorCity.includes('gurgaon'));
+        if (!isCityMatch) {
+          return false;
+        }
       }
 
       // Locality / Village / Place (bidirectional matching for postal & village names)
@@ -68,24 +144,28 @@ export default function SearchPage() {
         }
       }
 
-      // 6-digit PIN Code Filter
-      if (filters.pincode) {
-        const pin = filters.pincode.trim();
-        const matchesPin = tutor.location?.pincodes?.some(p => p?.includes(pin)) ||
-                           tutor.location?.city?.toLowerCase().includes(pin);
-        if (!matchesPin) {
+      // Subject (exact or partial matching)
+      if (filters.selectedSubject) {
+        const selSub = filters.selectedSubject.toLowerCase().trim();
+        const matchesSub = (tutor.subjects || []).some(s => {
+          const tutorSub = (s || '').toLowerCase().trim();
+          return tutorSub === selSub || tutorSub.includes(selSub) || selSub.includes(tutorSub);
+        });
+        if (!matchesSub) {
           return false;
         }
       }
 
-      // Subject
-      if (filters.selectedSubject && !(tutor.subjects || []).includes(filters.selectedSubject)) {
-        return false;
-      }
-
-      // Class / Grade
-      if (filters.selectedClass && !(tutor.classes || []).includes(filters.selectedClass)) {
-        return false;
+      // Class / Grade (exact or partial matching)
+      if (filters.selectedClass) {
+        const selCls = filters.selectedClass.toLowerCase().trim();
+        const matchesCls = (tutor.classes || []).some(c => {
+          const tutorCls = (c || '').toLowerCase().trim();
+          return tutorCls === selCls || tutorCls.includes(selCls) || selCls.includes(tutorCls);
+        });
+        if (!matchesCls) {
+          return false;
+        }
       }
 
       // Board

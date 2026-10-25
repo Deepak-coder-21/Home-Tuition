@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { sendInquiry, sendInquiryAsync } from '../../store/slices/inquiriesSlice';
 import { X, CheckCircle, Send, Calendar, Clock, MapPin, BookOpen, AlertCircle, LogIn, UserPlus, ShieldAlert } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { getPincodeLocation } from '../../services/locationService';
 
 export default function InquiryModal({ tutor, isOpen, onClose }) {
   const dispatch = useDispatch();
@@ -62,6 +63,22 @@ export default function InquiryModal({ tutor, isOpen, onClose }) {
       setErrorMessage("");
     }
   }, [isOpen, tutor, currentUser]);
+
+  const handlePincodeChange = async (pin) => {
+    const cleaned = pin.replace(/\D/g, '').slice(0, 6);
+    setFormData(prev => ({ ...prev, pincode: cleaned }));
+    if (/^\d{6}$/.test(cleaned)) {
+      const loc = await getPincodeLocation(cleaned);
+      if (loc && loc.matchedState) {
+        setFormData(prev => ({
+          ...prev,
+          state: loc.matchedState || loc.state,
+          city: loc.matchedDistrict || loc.district || prev.city,
+          locality: prev.locality ? prev.locality : (loc.places?.[0]?.name || '')
+        }));
+      }
+    }
+  };
 
   if (!isOpen || !tutor) return null;
 
@@ -519,8 +536,9 @@ export default function InquiryModal({ tutor, isOpen, onClose }) {
                   <label className="block text-xs font-semibold text-stone-700 mb-1">Pincode</label>
                   <input
                     type="text"
+                    maxLength={6}
                     value={formData.pincode}
-                    onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
+                    onChange={(e) => handlePincodeChange(e.target.value)}
                     className="w-full px-3 py-2 text-sm rounded-lg border border-stone-300 focus:border-brand-700 focus:ring-1 focus:ring-brand-700 outline-none bg-white"
                     placeholder="e.g. 110048"
                   />

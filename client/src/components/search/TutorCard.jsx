@@ -68,6 +68,9 @@ export default function TutorCard({ tutor }) {
                 {tutor.location?.localities && tutor.location.localities.length > 0
                   ? ` (${tutor.location.localities.slice(0, 3).join(', ')})`
                   : ''}
+                {tutor.location?.pincodes && tutor.location.pincodes.length > 0
+                  ? ` • PIN: ${tutor.location.pincodes.slice(0, 3).join(', ')}${tutor.location.pincodes.length > 3 ? '...' : ''}`
+                  : (tutor.location?.pincode ? ` • PIN: ${tutor.location.pincode}` : '')}
               </span>
             </div>
           </div>
