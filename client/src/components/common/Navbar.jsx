@@ -103,10 +103,10 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-2.5 sm:top-4 z-50 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full transition-all duration-300">
+    <header className="sticky top-2 sm:top-4 z-50 px-2 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full transition-all duration-300">
       {/* Floating Pill Navigation Island */}
       <nav 
-        className={`relative rounded-full transition-all duration-300 px-3 sm:px-5 py-2 sm:py-2.5 flex items-center justify-between border shadow-lg ${
+        className={`relative rounded-full transition-all duration-300 px-3 sm:px-5 py-2 sm:py-2.5 flex items-center justify-between border shadow-lg max-w-full ${
           isAdminLoggedIn
             ? 'bg-stone-950/95 backdrop-blur-xl border-stone-800 text-white shadow-emerald-950/20'
             : isTutorLoggedIn
@@ -744,7 +744,7 @@ export default function Navbar() {
       {/* Floating Mobile Menu Island */}
       {mobileMenuOpen && (
         <div 
-          className={`mt-2 p-4 rounded-3xl border shadow-2xl space-y-3 animate-in fade-in slide-in-from-top-2 duration-200 ${
+          className={`mt-2 p-4 rounded-3xl border shadow-2xl space-y-3 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain ${
             isAdminLoggedIn 
               ? 'bg-stone-950 border-stone-800 text-white' 
               : 'bg-white border-stone-200 text-stone-900'
@@ -835,8 +835,11 @@ export default function Navbar() {
               </Link>
 
               <Link
-                to="/student/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
+                to="/student/dashboard?tab=inquiries"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  window.dispatchEvent(new CustomEvent('switch-student-tab', { detail: 'inquiries' }));
+                }}
                 className="flex items-center justify-between p-3 rounded-2xl bg-terracotta-600 text-white font-bold text-sm shadow-sm"
               >
                 <div className="flex items-center gap-2.5">
@@ -848,6 +851,30 @@ export default function Navbar() {
                     {pendingCount}
                   </span>
                 )}
+              </Link>
+
+              <Link
+                to="/student/dashboard?tab=connected"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  window.dispatchEvent(new CustomEvent('switch-student-tab', { detail: 'connected' }));
+                }}
+                className="flex items-center gap-2.5 p-3 text-sm font-semibold text-stone-800 hover:bg-stone-100 rounded-2xl transition"
+              >
+                <Users className="w-4 h-4 text-emerald-600" />
+                <span>Connected Tutors</span>
+              </Link>
+
+              <Link
+                to="/student/dashboard?tab=profile"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  window.dispatchEvent(new CustomEvent('switch-student-tab', { detail: 'profile' }));
+                }}
+                className="flex items-center gap-2.5 p-3 text-sm font-semibold text-stone-800 hover:bg-stone-100 rounded-2xl transition"
+              >
+                <User className="w-4 h-4 text-terracotta-600" />
+                <span>Update Student Profile</span>
               </Link>
 
               <Link

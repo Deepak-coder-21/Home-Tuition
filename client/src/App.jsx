@@ -27,12 +27,12 @@ import UnauthorizedPage from './pages/UnauthorizedPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import PublicOnlyRoute from './components/auth/PublicOnlyRoute';
 
-// Scroll to top on route change or search query change
+// Scroll to top only on actual route (pathname) change, avoiding jarring scroll resets on tab/searchParam changes
 function ScrollToTop() {
-  const { pathname, search, hash } = useLocation();
+  const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, [pathname, search, hash]);
+  }, [pathname]);
   return null;
 }
 
@@ -48,7 +48,7 @@ export default function App() {
   return (
     <Router>
       <ScrollToTop />
-      <div className="min-h-screen flex flex-col bg-warm-50 text-stone-800 selection:bg-brand-200 selection:text-brand-900">
+      <div className="min-h-screen flex flex-col bg-warm-50 text-stone-800 selection:bg-brand-200 selection:text-brand-900 w-full overflow-x-hidden">
         <DemoModeBanner />
         <Navbar />
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useSearchParams } from 'react-router-dom';
 import { addTutorReview } from '../store/slices/tutorsSlice';
@@ -155,6 +155,21 @@ export default function StudentDashboardPage() {
   const [isLookingUpPin, setIsLookingUpPin] = useState(false);
   const [pinLookupMsg, setPinLookupMsg] = useState('');
 
+  const tabsSectionRef = useRef(null);
+
+  // Smoothly scroll down to the student tabs & requests area, accounting for sticky navbar
+  const scrollToTabsSection = (behavior = 'smooth') => {
+    if (tabsSectionRef.current) {
+      const headerOffset = 95; // Offset for sticky pill navbar + top spacing
+      const elementPosition = tabsSectionRef.current.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({
+        top: Math.max(0, offsetPosition),
+        behavior
+      });
+    }
+  };
+
   // Sync tab with URL query params
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -165,14 +180,27 @@ export default function StudentDashboardPage() {
     }
   }, [searchParams]);
 
-  // Listen to cross-component tab switch requests (e.g. from Navbar on desktop)
+  // Auto-scroll to tabs section on initial load if tab parameter is specified
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      const timer = setTimeout(() => {
+        scrollToTabsSection('smooth');
+      }, 250);
+      return () => clearTimeout(timer);
+    }
+  }, []); // Run once on initial mount
+
+  // Listen to cross-component tab switch requests (e.g. from Navbar on desktop or mobile menu)
   useEffect(() => {
     const handleSwitchTab = (e) => {
       const targetTab = e.detail;
       if (targetTab && ['inquiries', 'connected', 'profile'].includes(targetTab)) {
         setActiveTab(targetTab);
-        setSearchParams({ tab: targetTab });
-        window.scrollTo({ top: 250, behavior: 'smooth' });
+        setSearchParams({ tab: targetTab }, { replace: true });
+        setTimeout(() => {
+          scrollToTabsSection('smooth');
+        }, 50);
       }
     };
     window.addEventListener('switch-student-tab', handleSwitchTab);
@@ -207,7 +235,7 @@ export default function StudentDashboardPage() {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    setSearchParams({ tab });
+    setSearchParams({ tab }, { replace: true });
   };
 
   const handlePinChange = async (pin) => {
@@ -399,7 +427,7 @@ export default function StudentDashboardPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 relative">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 relative w-full overflow-x-hidden">
 
       {/* Prominent Global Floating Save Toast Notification */}
       {saveSuccess && (
@@ -425,7 +453,7 @@ export default function StudentDashboardPage() {
       )}
 
       {/* Dynamic Portal Console Header */}
-      <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-terracotta-950 rounded-3xl p-6 sm:p-7 text-white shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-stone-800">
+      <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-terracotta-950 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-7 text-white shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-stone-800 max-w-full overflow-hidden">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-terracotta-500/20 text-terracotta-300 text-xs font-bold border border-terracotta-500/30">
             <Sparkles className="w-3.5 h-3.5" />
@@ -525,7 +553,7 @@ export default function StudentDashboardPage() {
       )}
       
       {/* Student Profile Overview Header */}
-      <div className="bg-white rounded-3xl p-4 sm:p-6 md:p-8 border border-stone-200 shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
+      <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-stone-200 shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6 max-w-full overflow-hidden">
         <div className="flex items-center gap-3.5 sm:gap-4 min-w-0 w-full md:w-auto flex-1">
           <div className="relative group shrink-0">
             {currentUser?.avatar ? (
@@ -607,42 +635,48 @@ export default function StudentDashboardPage() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-stone-200 space-x-6 text-sm font-semibold relative overflow-x-auto scrollbar-none pb-0.5">
-        <button
-          onClick={() => handleTabChange('inquiries')}
-          className={`pb-3 flex items-center gap-2 border-b-2 -mb-px whitespace-nowrap transition ${
-            activeTab === 'inquiries'
-              ? 'border-terracotta-600 text-terracotta-800 font-bold'
-              : 'border-transparent text-stone-500 hover:text-stone-800'
-          }`}
-        >
-          <Send className="w-4 h-4" />
-          <span>My Tuition Requests ({inquiries.length})</span>
-        </button>
+      <div 
+        ref={tabsSectionRef}
+        id="student-tabs-section"
+        className="scroll-mt-24 sm:scroll-mt-28"
+      >
+        <div className="flex border-b border-stone-200 space-x-2 sm:space-x-6 text-xs sm:text-sm font-semibold relative overflow-x-auto no-scrollbar pb-0.5 overscroll-x-contain touch-pan-x">
+          <button
+            onClick={() => handleTabChange('inquiries')}
+            className={`pb-3 px-2 sm:px-1 flex items-center gap-1.5 sm:gap-2 border-b-2 -mb-px whitespace-nowrap transition cursor-pointer shrink-0 ${
+              activeTab === 'inquiries'
+                ? 'border-terracotta-600 text-terracotta-800 font-bold'
+                : 'border-transparent text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            <Send className="w-4 h-4 text-terracotta-600 shrink-0" />
+            <span>My Tuition Requests ({inquiries.length})</span>
+          </button>
 
-        <button
-          onClick={() => handleTabChange('connected')}
-          className={`pb-3 flex items-center gap-2 border-b-2 -mb-px whitespace-nowrap transition ${
-            activeTab === 'connected'
-              ? 'border-terracotta-600 text-terracotta-800 font-bold'
-              : 'border-transparent text-stone-500 hover:text-stone-800'
-          }`}
-        >
-          <UserCheck className="w-4 h-4" />
-          <span>Connected Tutors ({acceptedInquiries.length})</span>
-        </button>
+          <button
+            onClick={() => handleTabChange('connected')}
+            className={`pb-3 px-2 sm:px-1 flex items-center gap-1.5 sm:gap-2 border-b-2 -mb-px whitespace-nowrap transition cursor-pointer shrink-0 ${
+              activeTab === 'connected'
+                ? 'border-terracotta-600 text-terracotta-800 font-bold'
+                : 'border-transparent text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            <UserCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>Connected Tutors ({acceptedInquiries.length})</span>
+          </button>
 
-        <button
-          onClick={() => handleTabChange('profile')}
-          className={`pb-3 flex items-center gap-2 border-b-2 -mb-px whitespace-nowrap transition ${
-            activeTab === 'profile'
-              ? 'border-terracotta-600 text-terracotta-800 font-bold'
-              : 'border-transparent text-stone-500 hover:text-stone-800'
-          }`}
-        >
-          <User className="w-4 h-4" />
-          <span>Update Student Profile</span>
-        </button>
+          <button
+            onClick={() => handleTabChange('profile')}
+            className={`pb-3 px-2 sm:px-1 flex items-center gap-1.5 sm:gap-2 border-b-2 -mb-px whitespace-nowrap transition cursor-pointer shrink-0 ${
+              activeTab === 'profile'
+                ? 'border-terracotta-600 text-terracotta-800 font-bold'
+                : 'border-transparent text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            <User className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>Update Profile</span>
+          </button>
+        </div>
       </div>
 
       {/* TAB 1: Inquiries List */}
@@ -673,30 +707,30 @@ export default function StudentDashboardPage() {
               return (
                 <div
                   key={inq.id || inq._id}
-                  className="bg-white rounded-2xl p-6 border border-stone-200 shadow-soft space-y-4"
+                  className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-soft space-y-4 max-w-full overflow-hidden"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
                       <img
                         src={tutorAvatar}
                         alt={tutorDisplayName}
-                        className="w-12 h-12 rounded-xl object-cover border border-stone-200"
+                        className="w-12 h-12 rounded-xl object-cover border border-stone-200 shrink-0"
                       />
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <Link
                           to={tutorId ? `/tutors/${tutorId}` : '#'}
-                          className="font-serif text-base sm:text-lg font-bold text-stone-900 hover:text-brand-800 transition"
+                          className="font-serif text-base sm:text-lg font-bold text-stone-900 hover:text-brand-800 transition truncate block"
                         >
                           {tutorDisplayName}
                         </Link>
-                        <div className="text-xs text-stone-500">
+                        <div className="text-xs text-stone-500 truncate">
                           Subject: <strong className="text-stone-800">{inq.subject}</strong> • {inq.grade} ({inq.board})
                         </div>
                       </div>
                     </div>
 
                     {/* Status Pill */}
-                    <div>
+                    <div className="self-start sm:self-auto shrink-0">
                       {inq.status === 'pending' && (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
                           <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
@@ -719,17 +753,17 @@ export default function StudentDashboardPage() {
                   </div>
 
                   {/* Details Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs bg-warm-50/70 p-3 rounded-xl border border-warm-100">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs bg-warm-50/70 p-3 rounded-xl border border-warm-100 break-words">
                     <div>
                       <span className="text-stone-400 block font-medium">Mode & Full Location</span>
                       <span className="font-bold text-stone-800 block capitalize">{inq.mode?.replace('_', ' ')}</span>
-                      <span className="text-stone-600 block text-[11px] mt-0.5">
+                      <span className="text-stone-600 block text-[11px] mt-0.5 break-words">
                         {inq.fullAddress || (inq.houseLocation ? `${inq.houseLocation}, ${inq.locality}` : inq.locality)}
                       </span>
                     </div>
                     <div>
                       <span className="text-stone-400 block font-medium">Requested Schedule</span>
-                      <span className="font-bold text-stone-800">{inq.preferredDays} ({inq.preferredTime})</span>
+                      <span className="font-bold text-stone-800 block">{inq.preferredDays} ({inq.preferredTime})</span>
                     </div>
                     <div className="bg-amber-500/10 border border-amber-300/80 rounded-lg p-2">
                       <span className="text-amber-800 text-[10px] block font-extrabold uppercase tracking-wider">Agreed Monthly Package</span>
@@ -738,29 +772,29 @@ export default function StudentDashboardPage() {
                   </div>
 
                   {inq.studentNotes && (
-                    <div className="text-xs text-stone-600 italic">
+                    <div className="text-xs text-stone-600 italic break-words">
                       "Notes: {inq.studentNotes}"
                     </div>
                   )}
 
                   {/* Tutor Response Note if available */}
                   {inq.responseNote && (
-                    <div className="p-3 rounded-xl bg-brand-50/80 border border-brand-200 text-xs text-brand-900">
+                    <div className="p-3 rounded-xl bg-brand-50/80 border border-brand-200 text-xs text-brand-900 break-words">
                       <strong>Tutor's Note:</strong> {inq.responseNote}
                     </div>
                   )}
 
                   {/* Actions for Accepted Inquiries */}
                   {inq.status === 'accepted' && (
-                    <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-stone-100">
-                      <div className="flex items-center gap-4 text-xs text-stone-700">
-                        <span className="flex items-center gap-1 font-semibold text-emerald-700">
-                          <Phone className="w-3.5 h-3.5" />
-                          Direct Phone: {matchedTutor?.phone || inq.tutorPhone || inq.tutor?.phone || '+91 98711 54321'}
+                    <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-stone-100">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-stone-700 min-w-0">
+                        <span className="flex items-center gap-1.5 font-semibold text-emerald-700 break-all">
+                          <Phone className="w-3.5 h-3.5 shrink-0" />
+                          <span>Direct Phone: {matchedTutor?.phone || inq.tutorPhone || inq.tutor?.phone || '+91 98711 54321'}</span>
                         </span>
-                        <span className="flex items-center gap-1 text-stone-500">
-                          <Mail className="w-3.5 h-3.5" />
-                          {matchedTutor?.email || inq.tutorEmail || inq.tutor?.email || 'tutor@vidyanest.in'}
+                        <span className="flex items-center gap-1.5 text-stone-500 break-all">
+                          <Mail className="w-3.5 h-3.5 shrink-0" />
+                          <span>{matchedTutor?.email || inq.tutorEmail || inq.tutor?.email || 'tutor@vidyanest.in'}</span>
                         </span>
                       </div>
 
@@ -770,9 +804,9 @@ export default function StudentDashboardPage() {
                           return (
                             <button
                               onClick={() => handleOpenReview(matchedTutor || { id: tutorId, _id: tutorId, name: tutorDisplayName, subjects: [inq.subject] }, inq)}
-                              className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-stone-900 font-bold text-xs rounded-xl transition flex items-center gap-1.5 shadow-sm"
+                              className="w-full sm:w-auto px-4 py-2 bg-amber-500 hover:bg-amber-600 text-stone-900 font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
                             >
-                              <Star className="w-3.5 h-3.5 text-stone-900 fill-stone-900" />
+                              <Star className="w-3.5 h-3.5 text-stone-900 fill-stone-900 shrink-0" />
                               <span>Rate & Review Tutor</span>
                             </button>
                           );
@@ -781,11 +815,11 @@ export default function StudentDashboardPage() {
                           <button
                             type="button"
                             disabled
-                            className="px-3.5 py-2 bg-stone-100 border border-stone-200 text-stone-500 font-medium text-xs rounded-xl flex items-center gap-1.5 cursor-not-allowed opacity-90"
+                            className="w-full sm:w-auto px-3.5 py-2 bg-stone-100 border border-stone-200 text-stone-500 font-medium text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-not-allowed opacity-90 text-center"
                             title={eligibility.message}
                           >
-                            <Lock className="w-3.5 h-3.5 text-amber-600" />
-                            <span>Rating unlocks in {eligibility.daysRemaining}d ({eligibility.unlockDate})</span>
+                            <Lock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                            <span className="truncate">Rating unlocks in {eligibility.daysRemaining}d ({eligibility.unlockDate})</span>
                           </button>
                         );
                       })()}
@@ -822,22 +856,22 @@ export default function StudentDashboardPage() {
               return (
                 <div
                   key={inq.id || inq._id}
-                  className="bg-white rounded-2xl p-6 border border-stone-200 shadow-soft flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
+                  className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-soft flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 max-w-full overflow-hidden"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                     <img
                       src={tutorAvatar}
                       alt={tutorDisplayName}
-                      className="w-16 h-16 rounded-2xl object-cover border border-stone-200 shadow-sm"
+                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border border-stone-200 shadow-sm shrink-0"
                     />
-                    <div className="space-y-1">
-                      <h3 className="font-serif text-lg font-bold text-stone-900">
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <h3 className="font-serif text-base sm:text-lg font-bold text-stone-900 truncate">
                         {tutorDisplayName}
                       </h3>
-                      <p className="text-xs text-stone-600">
+                      <p className="text-xs text-stone-600 truncate">
                         Teaching <strong>{inq.subject}</strong> for {inq.grade}
                       </p>
-                      <div className="flex flex-wrap items-center gap-2.5 pt-0.5">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 pt-0.5">
                         <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-300/80 text-amber-950 font-serif font-bold text-xs">
                           ₹{inq.budgetPerMonth?.toLocaleString('en-IN') || inq.budgetPerMonth} / month
                         </span>
