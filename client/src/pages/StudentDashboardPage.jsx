@@ -160,8 +160,24 @@ export default function StudentDashboardPage() {
     const tab = searchParams.get('tab');
     if (tab && ['inquiries', 'connected', 'profile'].includes(tab)) {
       setActiveTab(tab);
+    } else if (!tab) {
+      setActiveTab('inquiries');
     }
   }, [searchParams]);
+
+  // Listen to cross-component tab switch requests (e.g. from Navbar on desktop)
+  useEffect(() => {
+    const handleSwitchTab = (e) => {
+      const targetTab = e.detail;
+      if (targetTab && ['inquiries', 'connected', 'profile'].includes(targetTab)) {
+        setActiveTab(targetTab);
+        setSearchParams({ tab: targetTab });
+        window.scrollTo({ top: 250, behavior: 'smooth' });
+      }
+    };
+    window.addEventListener('switch-student-tab', handleSwitchTab);
+    return () => window.removeEventListener('switch-student-tab', handleSwitchTab);
+  }, [setSearchParams]);
 
   // Sync profile form when currentUser changes
   useEffect(() => {
@@ -576,7 +592,7 @@ export default function StudentDashboardPage() {
                 : 'bg-white hover:bg-stone-50 text-stone-700 border-stone-300'
             }`}
           >
-            <User className="w-3.5 h-3.5 text-terracotta-600" />
+            <User className={`w-3.5 h-3.5 ${activeTab === 'profile' ? 'text-white' : 'text-terracotta-600'}`} />
             <span>Edit Profile</span>
           </button>
 
@@ -683,7 +699,7 @@ export default function StudentDashboardPage() {
                     <div>
                       {inq.status === 'pending' && (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold">
-                          <Clock className="w-3.5 h-3.5 text-amber-600 animate-spin" />
+                          <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                           <span>Awaiting Tutor Response</span>
                         </span>
                       )}
@@ -837,7 +853,7 @@ export default function StudentDashboardPage() {
 
                   <div className="flex items-center gap-3">
                     <Link
-                      to={`/tutors/${matchedTutor.id}`}
+                      to={matchedTutor?._id ? `/tutors/${matchedTutor._id}` : (matchedTutor?.id ? `/tutors/${matchedTutor.id}` : (tutorId ? `/tutors/${tutorId}` : '#'))}
                       className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs rounded-xl transition"
                     >
                       View Profile

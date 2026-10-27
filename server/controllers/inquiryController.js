@@ -175,14 +175,38 @@ export const getMyInquiries = async (req, res) => {
         ? { parentEmail: { $regex: new RegExp(`^${req.user.email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } }
         : null;
 
-      const orConditions = [{ studentUser: req.user._id }];
+      const orConditions = [];
+      if (req.user._id && mongoose.Types.ObjectId.isValid(req.user._id)) {
+        orConditions.push({ studentUser: req.user._id });
+      }
       if (emailFilter) {
         orConditions.push(emailFilter);
       }
 
-      inquiries = await Inquiry.find({ $or: orConditions })
-        .populate('tutor', 'name avatar rating headline phone email location rates')
-        .sort({ createdAt: -1 });
+      if (orConditions.length > 0) {
+        inquiries = await Inquiry.find({ $or: orConditions })
+          .populate('tutor', 'name avatar rating headline phone email location rates')
+          .sort({ createdAt: -1 });
+      } else {
+        inquiries = [];
+      }
+
+      /* === [START DEMO LOGIN FEATURE - DEMO INQUIRY PREVIEW: Delete if removing demo] === */
+      if ((req.isDemo || req.user?.isDemo) && inquiries.length === 0) {
+        inquiries = await Inquiry.find()
+          .populate('tutor', 'name avatar rating headline phone email location rates')
+          .sort({ createdAt: -1 })
+          .limit(3);
+      }
+
+      if (req.isDemo || req.user?.isDemo) {
+        inquiries = inquiries.map(inq => {
+          const inqObj = inq.toObject ? inq.toObject() : { ...inq };
+          if (inqObj.parentEmail) inqObj.parentEmail = 'student.demo@vidyanest.com';
+          return inqObj;
+        });
+      }
+      /* === [END DEMO LOGIN FEATURE - DEMO INQUIRY PREVIEW] === */
     }
 
     res.json({

@@ -214,15 +214,18 @@ export default function Navbar() {
             </Link>
 
             <Link
-              to="/student/dashboard"
+              to="/student/dashboard?tab=inquiries"
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('switch-student-tab', { detail: 'inquiries' }));
+              }}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
-                isActive('/student/dashboard') || isActive('/student')
+                (isActive('/student/dashboard') || isActive('/student')) && (!searchParams.get('tab') || searchParams.get('tab') === 'inquiries')
                   ? 'bg-white text-terracotta-700 font-bold shadow-xs border border-stone-200/60'
                   : 'text-stone-600 hover:text-stone-950 hover:bg-white/60'
               }`}
             >
-              <Send className={`w-3.5 h-3.5 ${isActive('/student/dashboard') || isActive('/student') ? 'text-terracotta-600' : 'text-stone-400'}`} />
-              <span>My Requests</span>
+              <Send className={`w-3.5 h-3.5 ${(isActive('/student/dashboard') || isActive('/student')) && (!searchParams.get('tab') || searchParams.get('tab') === 'inquiries') ? 'text-terracotta-600' : 'text-stone-400'}`} />
+              <span>My Tuition Requests</span>
               {pendingCount > 0 && (
                 <span className="px-1.5 py-0.2 text-[9px] font-extrabold bg-terracotta-600 text-white rounded-full">
                   {pendingCount}
@@ -423,7 +426,10 @@ export default function Navbar() {
                     <div className="p-1.5 space-y-0.5">
                       <Link
                         to="/student/dashboard?tab=profile"
-                        onClick={() => setStudentProfileMenuOpen(false)}
+                        onClick={() => {
+                          setStudentProfileMenuOpen(false);
+                          window.dispatchEvent(new CustomEvent('switch-student-tab', { detail: 'profile' }));
+                        }}
                         className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-stone-700 hover:text-terracotta-800 hover:bg-terracotta-50/70 rounded-2xl transition group"
                       >
                         <User className="w-4 h-4 text-terracotta-600" />
@@ -432,7 +438,10 @@ export default function Navbar() {
 
                       <Link
                         to="/student/dashboard?tab=inquiries"
-                        onClick={() => setStudentProfileMenuOpen(false)}
+                        onClick={() => {
+                          setStudentProfileMenuOpen(false);
+                          window.dispatchEvent(new CustomEvent('switch-student-tab', { detail: 'inquiries' }));
+                        }}
                         className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-stone-700 hover:text-stone-900 hover:bg-stone-100 rounded-2xl transition"
                       >
                         <div className="flex items-center gap-2.5">
@@ -448,7 +457,10 @@ export default function Navbar() {
 
                       <Link
                         to="/student/dashboard?tab=connected"
-                        onClick={() => setStudentProfileMenuOpen(false)}
+                        onClick={() => {
+                          setStudentProfileMenuOpen(false);
+                          window.dispatchEvent(new CustomEvent('switch-student-tab', { detail: 'connected' }));
+                        }}
                         className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-stone-700 hover:text-stone-900 hover:bg-stone-100 rounded-2xl transition"
                       >
                         <Users className="w-4 h-4 text-emerald-600" />
