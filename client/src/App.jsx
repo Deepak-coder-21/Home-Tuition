@@ -6,6 +6,7 @@ import { fetchSiteSettings } from './store/slices/settingsSlice';
 
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
+import DemoModeBanner from './components/common/DemoModeBanner';
 import HomePage from './pages/HomePage';
 import SearchPage from './pages/SearchPage';
 import TutorDetailsPage from './pages/TutorDetailsPage';
@@ -48,6 +49,7 @@ export default function App() {
     <Router>
       <ScrollToTop />
       <div className="min-h-screen flex flex-col bg-warm-50 text-stone-800 selection:bg-brand-200 selection:text-brand-900">
+        <DemoModeBanner />
         <Navbar />
 
         <main className="flex-1">

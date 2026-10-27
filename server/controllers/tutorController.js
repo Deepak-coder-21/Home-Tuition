@@ -136,29 +136,35 @@ export const getMyProfile = async (req, res) => {
     }
 
     if (!profile) {
-      // Auto-create tutor profile if user is a tutor and document does not exist yet
-      profile = await TutorProfile.create({
-        user: req.user._id,
-        name: req.user.name || 'Educator',
-        tagline: 'Qualified Home & Online Educator',
-        qualification: 'Graduate / Educator',
-        experienceYears: 2,
-        location: {
-          state: req.user.state || 'Delhi NCR',
-          city: req.user.city || 'New Delhi',
-          localities: [req.user.locality || 'Main'],
-          pincodes: req.user.pincode ? [req.user.pincode] : [],
-          pincode: req.user.pincode || ''
-        },
-        pincode: req.user.pincode || '',
-        modes: ['home_visit', 'online'],
-        subjects: ['Mathematics'],
-        classes: ['Class 9 - 10 (Secondary)'],
-        boards: ['CBSE'],
-        rates: { monthly: 7000, hourly: 583 }
-      });
-      await User.findByIdAndUpdate(req.user._id, { tutorProfileId: profile._id });
-      profile = await TutorProfile.findById(profile._id).populate('user', 'name email phone avatar city state');
+      if (req.isDemo || req.user?.isDemo) {
+        profile = await TutorProfile.findOne().populate('user', 'name email phone avatar city state');
+      }
+      
+      if (!profile) {
+        // Auto-create tutor profile if user is a tutor and document does not exist yet
+        profile = await TutorProfile.create({
+          user: req.user._id,
+          name: req.user.name || 'Educator',
+          tagline: 'Qualified Home & Online Educator',
+          qualification: 'Graduate / Educator',
+          experienceYears: 2,
+          location: {
+            state: req.user.state || 'Delhi NCR',
+            city: req.user.city || 'New Delhi',
+            localities: [req.user.locality || 'Main'],
+            pincodes: req.user.pincode ? [req.user.pincode] : [],
+            pincode: req.user.pincode || ''
+          },
+          pincode: req.user.pincode || '',
+          modes: ['home_visit', 'online'],
+          subjects: ['Mathematics'],
+          classes: ['Class 9 - 10 (Secondary)'],
+          boards: ['CBSE'],
+          rates: { monthly: 7000, hourly: 583 }
+        });
+        await User.findByIdAndUpdate(req.user._id, { tutorProfileId: profile._id });
+        profile = await TutorProfile.findById(profile._id).populate('user', 'name email phone avatar city state');
+      }
     }
 
     // Fetch real reviews from MongoDB
@@ -171,7 +177,9 @@ export const getMyProfile = async (req, res) => {
     if (profile.rating !== avgRating || profile.reviewCount !== reviewCount) {
       profile.rating = avgRating;
       profile.reviewCount = reviewCount;
-      await profile.save();
+      if (!req.isDemo && !req.user?.isDemo) {
+        await profile.save();
+      }
     }
 
     res.json({
@@ -203,6 +211,30 @@ export const updateMyProfile = async (req, res) => {
     if (!profile && req.user.tutorProfileId) {
       profile = await TutorProfile.findById(req.user.tutorProfileId);
     }
+    if (!profile && (req.isDemo || req.user?.isDemo)) {
+      profile = await TutorProfile.findOne();
+    }
+
+    /* === [START DEMO LOGIN FEATURE - TUTOR UPDATE SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      const currentProfile = profile ? (profile.toObject ? profile.toObject() : profile) : {};
+      const updatedAvatar = req.body.avatar || currentProfile.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80';
+      const simulatedTutor = {
+        ...currentProfile,
+        ...req.body,
+        avatar: updatedAvatar,
+        isDemo: true
+      };
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: 'Profile update simulated in Demo Mode: changes are not saved in demo login.',
+        tutor: simulatedTutor,
+        avatar: updatedAvatar
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - TUTOR UPDATE SAFEGUARD] === */
+
     if (!profile) {
       profile = await TutorProfile.create({
         user: req.user._id,
@@ -364,6 +396,39 @@ export const uploadVerificationDocuments = async (req, res) => {
       return res.status(400).json({ message: 'Please provide at least one document' });
     }
 
+    /* === [START DEMO LOGIN FEATURE - DOC UPLOAD SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      const simulatedDocs = (documents || []).map((doc, idx) => ({
+        id: doc.id || `demo-doc-${Date.now()}-${idx}`,
+        docType: doc.docType,
+        docName: doc.docName || `${doc.docType}.pdf`,
+        fileUrl: doc.fileUrl || 'https://images.unsplash.com/photo-1589330694653-ded6df03f754?w=800&auto=format&fit=crop&q=80',
+        fileId: null,
+        fileType: doc.fileType || 'image/jpeg',
+        uploadedAt: new Date(),
+        status: 'pending',
+        notes: 'Previewed in Demo Mode (Simulated)',
+        isDemo: true
+      }));
+
+      const currentProfile = profile ? (profile.toObject ? profile.toObject() : profile) : {};
+      const simulatedTutor = {
+        ...currentProfile,
+        verificationDocuments: simulatedDocs,
+        verificationStatus: 'pending',
+        isVerified: false,
+        isDemo: true
+      };
+
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: 'Verification documents simulated in Demo Mode: changes are not saved in demo login.',
+        tutor: simulatedTutor
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - DOC UPLOAD SAFEGUARD] === */
+
     if (!profile.verificationDocuments) profile.verificationDocuments = [];
 
     // Upload files to ImageKit concurrently
@@ -476,10 +541,27 @@ export const uploadVerificationDocuments = async (req, res) => {
 export const deleteVerificationDocument = async (req, res) => {
   try {
     const { docType } = req.params;
-    const profile = await TutorProfile.findOne({ user: req.user._id });
+    let profile = await TutorProfile.findOne({ user: req.user._id });
+    if (!profile && req.user.tutorProfileId) {
+      profile = await TutorProfile.findById(req.user.tutorProfileId);
+    }
+    if (!profile && (req.isDemo || req.user?.isDemo)) {
+      profile = await TutorProfile.findOne();
+    }
     if (!profile) {
       return res.status(404).json({ message: 'Tutor profile not found' });
     }
+
+    /* === [START DEMO LOGIN FEATURE - DOC DELETION SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: 'Document deletion simulated in Demo Mode: changes are not saved in demo login.',
+        tutor: profile
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - DOC DELETION SAFEGUARD] === */
 
     const docIndex = profile.verificationDocuments.findIndex(d => d.docType === docType);
     if (docIndex === -1) {
@@ -523,6 +605,17 @@ export const deleteVerificationDocument = async (req, res) => {
 // @access  Private
 export const getImageKitAuth = async (req, res) => {
   try {
+    if (req.isDemo || req.user?.isDemo) {
+      return res.json({
+        success: true,
+        token: 'demo_imagekit_token',
+        expire: Math.floor(Date.now() / 1000) + 3600,
+        signature: 'demo_imagekit_signature',
+        publicKey: 'demo_public_key',
+        urlEndpoint: 'https://ik.imagekit.io/demo',
+        isDemo: true
+      });
+    }
     const authParams = imagekit.helper.getAuthenticationParameters();
     res.json({
       success: true,
@@ -571,6 +664,15 @@ export const getMyNotices = async (req, res) => {
 // @access  Private (Tutor only)
 export const markNoticeAsRead = async (req, res) => {
   try {
+    if (req.isDemo || req.user?.isDemo) {
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: 'Notice read simulated in Demo Mode.',
+        deletedNoticeId: req.params.id
+      });
+    }
+
     const notice = await Notice.findById(req.params.id);
     if (!notice) {
       return res.status(404).json({ success: false, message: 'Notice not found' });
@@ -594,6 +696,14 @@ export const markNoticeAsRead = async (req, res) => {
 // @access  Private (Tutor only)
 export const deleteNotice = async (req, res) => {
   try {
+    if (req.isDemo || req.user?.isDemo) {
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: 'Notice deletion simulated in Demo Mode.'
+      });
+    }
+
     await Notice.findByIdAndDelete(req.params.id);
     res.json({
       success: true,

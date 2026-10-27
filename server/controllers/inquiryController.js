@@ -65,6 +65,45 @@ export const createInquiry = async (req, res) => {
       pincode
     ].filter(Boolean).join(', ') || locality;
 
+    /* === [START DEMO LOGIN FEATURE - INQUIRY CREATION SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      const simulatedInquiry = {
+        _id: new mongoose.Types.ObjectId().toString(),
+        tutor: tutor._id,
+        tutorName: tutor.name,
+        studentUser: req.user._id,
+        studentName: studentName || req.user.studentName || req.user.name,
+        parentName: parentName || req.user.name,
+        parentPhone: parentPhone || req.user.phone || '+91 98000 00001',
+        parentEmail: parentEmail || req.user.email || 'student.demo@vidyanest.com',
+        grade: grade || req.user.studentGrade || 'Class 9 - 10 (Secondary)',
+        board: board || req.user.board || 'CBSE',
+        subject: subject || 'General',
+        locality: locality || req.user.locality || 'Local',
+        houseLocation: houseLocation || address || req.user.houseLocation || '',
+        landmark: landmark || '',
+        city: city || req.user.city || 'New Delhi',
+        state: state || req.user.state || 'Delhi NCR',
+        pincode: pincode || req.user.pincode || '',
+        fullAddress: calculatedFullAddress,
+        mode: mode || 'home_visit',
+        preferredDays: preferredDays || '3 days / week',
+        preferredTime: preferredTime || '5:00 PM - 6:30 PM',
+        budgetPerMonth: Number(budgetPerMonth) || tutor.rates?.monthly || 8000,
+        studentNotes: studentNotes || '',
+        status: 'pending',
+        createdAt: new Date(),
+        isDemo: true
+      };
+      return res.status(201).json({
+        success: true,
+        isDemo: true,
+        message: 'Inquiry simulated in Demo Mode: changes are not saved in demo login.',
+        inquiry: simulatedInquiry
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - INQUIRY CREATION SAFEGUARD] === */
+
     const inquiry = await Inquiry.create({
       tutor: tutor._id,
       tutorName: tutor.name,
@@ -189,6 +228,23 @@ export const updateInquiryStatus = async (req, res) => {
         return res.status(403).json({ message: 'Not authorized to update this inquiry' });
       }
     }
+
+    /* === [START DEMO LOGIN FEATURE - INQUIRY STATUS SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: 'Inquiry status update simulated in Demo Mode: changes are not saved in demo login.',
+        inquiry: {
+          ...(inquiry.toObject ? inquiry.toObject() : inquiry),
+          status,
+          responseNote,
+          acceptedAt: status === 'accepted' ? new Date() : null,
+          isDemo: true
+        }
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - INQUIRY STATUS SAFEGUARD] === */
 
     inquiry.status = status;
     if (responseNote !== undefined) inquiry.responseNote = responseNote;

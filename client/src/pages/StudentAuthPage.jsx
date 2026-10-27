@@ -371,6 +371,8 @@ export default function StudentAuthPage({ initialMode = 'login' }) {
               </div>
             )}
 
+
+
             {/* SIGN IN FORM */}
             {authMode === 'login' && (
               <form onSubmit={handleLoginSubmit} className="space-y-4">

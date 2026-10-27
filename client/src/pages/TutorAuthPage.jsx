@@ -474,6 +474,8 @@ export default function TutorAuthPage({ initialMode = 'login' }) {
               </div>
             )}
 
+
+
             {/* TUTOR SIGN IN */}
             {authMode === 'login' && (
               <form onSubmit={handleLoginSubmit} className="space-y-4">

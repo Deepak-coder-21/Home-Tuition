@@ -11,7 +11,10 @@ import {
   AlertCircle,
   ArrowRight,
   ArrowLeft,
-  Loader2
+  Loader2,
+  Sparkles,
+  Users,
+  GraduationCap
 } from 'lucide-react';
 import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
 import { sanitizeErrorMessage } from '../utils/validation';
@@ -129,6 +132,8 @@ export default function AdminAuthPage() {
               <span>{sanitizeErrorMessage(errorMessage || authError, 'Invalid administrator credentials.')}</span>
             </div>
           )}
+
+
 
 
 

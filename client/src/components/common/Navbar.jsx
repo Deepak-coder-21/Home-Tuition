@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../store/slices/authSlice';
+import { loginAsDemo } from '../../services/demoAuth';
 import { 
   GraduationCap, 
   Search, 
@@ -29,6 +30,7 @@ import {
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [signInDropdownOpen, setSignInDropdownOpen] = useState(false);
+  const [isDemoSubmitting, setIsDemoSubmitting] = useState(false);
   const [studentProfileMenuOpen, setStudentProfileMenuOpen] = useState(false);
   const [adminProfileMenuOpen, setAdminProfileMenuOpen] = useState(false);
   const [adminWorkspaceMenuOpen, setAdminWorkspaceMenuOpen] = useState(false);
@@ -74,6 +76,21 @@ export default function Navbar() {
     navigate('/');
     setMobileMenuOpen(false);
   };
+
+  /* === [START DEMO LOGIN IN NAVBAR - DELETE THIS FUNCTION TO REMOVE DEMO LOGIN] === */
+  const handleQuickDemo = async (role) => {
+    setIsDemoSubmitting(true);
+    try {
+      await loginAsDemo({ role, dispatch, navigate });
+      setSignInDropdownOpen(false);
+      setMobileMenuOpen(false);
+    } catch (err) {
+      console.error('Demo login error:', err);
+    } finally {
+      setIsDemoSubmitting(false);
+    }
+  };
+  /* === [END DEMO LOGIN IN NAVBAR] === */
 
   React.useEffect(() => {
     setSignInDropdownOpen(false);
@@ -636,6 +653,50 @@ export default function Navbar() {
                         </div>
                       </div>
                     </Link>
+
+                    {/* === [START DEMO LOGIN IN SIGN-IN DROPDOWN - DELETE THIS BLOCK TO REMOVE DEMO LOGIN] === */}
+                    <div className="mt-2 pt-2 border-t border-stone-100 px-2 pb-1">
+                      <div className="text-[10px] font-bold text-amber-800 uppercase tracking-wider mb-1 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-amber-600" />
+                        <span>Demo Mode (Changes not saved):</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1">
+                        <button
+                          type="button"
+                          disabled={isDemoSubmitting}
+                          onClick={() => {
+                            setSignInDropdownOpen(false);
+                            handleQuickDemo('student');
+                          }}
+                          className="py-1 px-1.5 text-[10px] font-bold rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition cursor-pointer"
+                        >
+                          Student
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isDemoSubmitting}
+                          onClick={() => {
+                            setSignInDropdownOpen(false);
+                            handleQuickDemo('tutor');
+                          }}
+                          className="py-1 px-1.5 text-[10px] font-bold rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 transition cursor-pointer"
+                        >
+                          Teacher
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isDemoSubmitting}
+                          onClick={() => {
+                            setSignInDropdownOpen(false);
+                            handleQuickDemo('admin');
+                          }}
+                          className="py-1 px-1.5 text-[10px] font-bold rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 transition cursor-pointer"
+                        >
+                          Admin
+                        </button>
+                      </div>
+                    </div>
+                    {/* === [END DEMO LOGIN IN SIGN-IN DROPDOWN] === */}
                   </div>
                 </>
               )}
@@ -893,6 +954,7 @@ export default function Navbar() {
                 <span>Become a Tutor</span>
               </Link>
               <div className="pt-2 border-t border-stone-100 space-y-2">
+
                 <div className="grid grid-cols-2 gap-2">
                   <Link
                     to="/student/login"

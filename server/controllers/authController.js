@@ -5,6 +5,7 @@ import { generateToken } from '../middleware/authMiddleware.js';
 import { sendRegistrationOtpEmail, sendPasswordResetOtpEmail } from '../utils/emailService.js';
 import { validateRealEmail } from '../utils/emailValidator.js';
 import { validateStrongPassword } from '../utils/passwordValidator.js';
+import { getAdminEmail } from '../utils/adminSync.js';
 
 // Helper to generate secure 6-digit numeric OTP
 const generateOtpCode = () => {
@@ -340,12 +341,27 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide both email and password' });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    const cleanEmail = (typeof email === 'string' ? email : String(email || '')).toLowerCase().trim();
+    const cleanPassword = typeof password === 'string' ? password : String(password || '');
 
-    // Strictly match password against MongoDB bcrypt hash - NO hardcoded passwords
-    const isMatch = await user?.matchPassword(password);
+    const user = await User.findOne({ email: cleanEmail }).select('+password');
 
-    if (!user || !isMatch) {
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
+
+    if (user.isBlocked) {
+      return res.status(403).json({ success: false, message: 'Your account has been deactivated. Please contact support.' });
+    }
+
+    let isMatch = false;
+    try {
+      isMatch = await user.matchPassword(cleanPassword);
+    } catch {
+      isMatch = false;
+    }
+
+    if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
@@ -356,16 +372,20 @@ export const loginUser = async (req, res) => {
     let tutorProfileId = null;
     let tutorAvatar = user.avatar || '';
     if (user.role === 'tutor') {
-      const profile = await TutorProfile.findOne({ user: user._id }) || (user.email ? await TutorProfile.findOne({ email: user.email }) : null);
-      tutorProfileId = profile?._id;
-      if (profile?.avatar) {
-        tutorAvatar = profile.avatar;
+      try {
+        const profile = await TutorProfile.findOne({ user: user._id });
+        tutorProfileId = profile?._id;
+        if (profile?.avatar) {
+          tutorAvatar = profile.avatar;
+        }
+      } catch (err) {
+        console.error('Error fetching tutor profile during login:', err.message);
       }
     }
 
     const token = generateToken(user._id, user.role);
 
-    res.json({
+    return res.json({
       success: true,
       token,
       user: {
@@ -398,16 +418,151 @@ export const loginUser = async (req, res) => {
     });
   } catch (error) {
     console.error('loginUser error:', error.message);
-    res.status(500).json({ success: false, message: 'Unable to sign in at this time. Please try again shortly.' });
+    return res.status(500).json({ success: false, message: 'Unable to sign in at this time. Please try again shortly.' });
   }
 };
+
+/* === [START DEMO LOGIN FEATURE - DELETE THIS BLOCK TO REMOVE DEMO LOGIN] ===
+ * Route: POST /api/auth/demo-login
+ * If removing demo login in the future, remove this entire block (demoLogin function).
+ */
+// @desc    One-Click Demo / Visiting Login for Student, Teacher, Admin
+// @route   POST /api/auth/demo-login
+// @access  Public
+export const demoLogin = async (req, res) => {
+  try {
+    const rawRole = (req.body?.role || 'student').toLowerCase().trim();
+    const role = (rawRole === 'teacher' || rawRole === 'tutor') ? 'tutor' : rawRole;
+
+    if (!['student', 'tutor', 'admin'].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid demo role. Allowed roles are: 'student', 'teacher' (or 'tutor'), and 'admin'."
+      });
+    }
+
+    let userObj = null;
+    let tutorProfileId = null;
+
+    if (role === 'student') {
+      let existingStudent = await User.findOne({ role: 'student' }).select('-password');
+      if (existingStudent) {
+        userObj = existingStudent.toObject ? existingStudent.toObject() : { ...existingStudent };
+      } else {
+        userObj = {
+          _id: 'usr-demo-student-1',
+          name: 'Aarav Verma',
+          role: 'student',
+          phone: '+91 98000 00001',
+          state: 'Delhi NCR',
+          city: 'New Delhi',
+          locality: 'Greater Kailash II',
+          houseLocation: 'Flat 402, Block B, Silver Oak Apartments',
+          studentName: 'Aarav Verma',
+          studentGrade: 'Class 10 (Secondary)',
+          board: 'CBSE',
+          school: 'Delhi Public School',
+          subjectsNeeded: 'Mathematics, Science',
+          preferredMode: 'home_visit',
+          learningGoals: 'Targeting 95%+ in Class 10 CBSE Board Exams',
+          agreedToPolicy: true
+        };
+      }
+      // Never expose personal email in demo mode
+      userObj.email = 'student.demo@vidyanest.com';
+      userObj.isDemo = true;
+      if (!userObj.name.includes('(Demo)')) {
+        userObj.name = `${userObj.name} (Demo)`;
+      }
+    } else if (role === 'tutor') {
+      let existingTutorUser = await User.findOne({ role: 'tutor' }).select('-password');
+      let existingTutorProfile = null;
+      if (existingTutorUser) {
+        existingTutorProfile = await TutorProfile.findOne({ user: existingTutorUser._id });
+      }
+      if (!existingTutorProfile) {
+        existingTutorProfile = await TutorProfile.findOne();
+      }
+
+      if (existingTutorUser) {
+        userObj = existingTutorUser.toObject ? existingTutorUser.toObject() : { ...existingTutorUser };
+      } else {
+        userObj = {
+          _id: 'usr-demo-tutor-1',
+          name: 'Dr. Rajesh Sharma',
+          role: 'tutor',
+          phone: '+91 98000 00002',
+          state: 'Delhi NCR',
+          city: 'New Delhi',
+          locality: 'South Extension',
+          agreedToPolicy: true
+        };
+      }
+      // Never expose personal email in demo mode
+      userObj.email = 'tutor.demo@vidyanest.com';
+      userObj.isDemo = true;
+      if (!userObj.name.includes('(Demo)')) {
+        userObj.name = `${userObj.name} (Demo)`;
+      }
+      userObj.avatar = existingTutorProfile?.avatar || userObj.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80';
+      userObj.tutorProfileId = existingTutorProfile?._id || 'demo-profile-1';
+      tutorProfileId = userObj.tutorProfileId;
+    } else if (role === 'admin') {
+      let existingAdmin = await User.findOne({ role: 'admin' }).select('-password');
+      if (existingAdmin) {
+        userObj = existingAdmin.toObject ? existingAdmin.toObject() : { ...existingAdmin };
+      } else {
+        userObj = {
+          _id: 'usr-admin-1',
+          name: 'VidyaNest Administrator',
+          role: 'admin',
+          city: 'New Delhi'
+        };
+      }
+      // NEVER expose real admin email (e.g. personal Gmail) in demo mode
+      userObj.email = 'admin.demo@vidyanest.com';
+      userObj.isDemo = true;
+      if (!userObj.name.includes('(Demo)')) {
+        userObj.name = `${userObj.name} (Demo)`;
+      }
+    }
+
+    const token = generateToken(userObj._id, role, {
+      isDemo: true,
+      role,
+      name: userObj.name,
+      email: userObj.email
+    });
+
+    const roleLabel = role === 'tutor' ? 'Teacher / Educator' : role === 'admin' ? 'Administrator' : 'Student / Parent';
+
+    return res.json({
+      success: true,
+      token,
+      isDemo: true,
+      message: `Welcome! Logged in as Demo ${roleLabel} for visiting. Changes are not saved in demo login.`,
+      user: {
+        ...userObj,
+        tutorProfileId,
+        isDemo: true
+      }
+    });
+  } catch (error) {
+    console.error('demoLogin error:', error.message);
+    return res.status(500).json({ success: false, message: 'Unable to initiate demo session.' });
+  }
+};
+/* === [END DEMO LOGIN FEATURE - demoLogin] === */
 
 // @desc    Get logged in user profile
 // @route   GET /api/auth/me
 // @access  Private
 export const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    let user = await User.findById(req.user.id || req.user._id);
+    if (!user && (req.isDemo || req.user?.isDemo)) {
+      user = req.user;
+    }
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -420,14 +575,22 @@ export const getMe = async (req, res) => {
       }
     }
 
-    const userObj = user.toObject();
+    const userObj = user.toObject ? user.toObject() : { ...user };
+    const isDemo = Boolean(req.isDemo || req.user?.isDemo || userObj.isDemo);
+
+    if (isDemo) {
+      if (userObj.role === 'admin') userObj.email = 'admin.demo@vidyanest.com';
+      else if (userObj.role === 'tutor') userObj.email = 'tutor.demo@vidyanest.com';
+      else if (userObj.role === 'student') userObj.email = 'student.demo@vidyanest.com';
+    }
 
     res.json({
       success: true,
       user: {
         ...userObj,
         avatar,
-        tutorProfile
+        tutorProfile,
+        isDemo
       }
     });
   } catch (error) {
@@ -597,6 +760,23 @@ export const resetPassword = async (req, res) => {
 // @access  Private
 export const updateUserProfile = async (req, res) => {
   try {
+    /* === [START DEMO LOGIN FEATURE - PROFILE UPDATE SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      const current = req.user.toObject ? req.user.toObject() : req.user;
+      const simulatedUser = {
+        ...current,
+        ...req.body,
+        isDemo: true
+      };
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: 'Profile update simulated in Demo Mode: changes are not saved in demo login.',
+        user: simulatedUser
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - PROFILE UPDATE SAFEGUARD] === */
+
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });

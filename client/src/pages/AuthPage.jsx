@@ -599,6 +599,8 @@ export default function AuthPage() {
             </div>
           </div>
 
+
+
           {/* Auth Error Notification */}
           {(formError || authError) && (
             <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">

@@ -37,6 +37,23 @@ export const verifyTutorStatus = async (req, res) => {
       return res.status(404).json({ message: 'Tutor not found' });
     }
 
+    /* === [START DEMO LOGIN FEATURE - TUTOR VERIFY SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      const simulatedTutor = tutor.toObject ? tutor.toObject() : { ...tutor };
+      simulatedTutor.isVerified = !!isVerified;
+      simulatedTutor.verificationStatus = isVerified ? 'verified' : 'rejected';
+      simulatedTutor.isDemo = true;
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: isVerified 
+          ? 'Tutor verification simulated in Demo Mode: changes are not saved in demo login.' 
+          : 'Tutor rejection simulated in Demo Mode: changes are not saved in demo login.',
+        tutor: simulatedTutor
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - TUTOR VERIFY SAFEGUARD] === */
+
     tutor.isVerified = !!isVerified;
     tutor.verificationStatus = isVerified ? 'verified' : 'rejected';
     if (!tutor.verificationDetails) tutor.verificationDetails = {};
@@ -105,6 +122,15 @@ export const getAdminStats = async (req, res) => {
 // @access  Private (Admin only)
 export const triggerDocumentReminders = async (req, res) => {
   try {
+    if (req.isDemo || req.user?.isDemo) {
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: 'Document reminder scan simulated in Demo Mode (no real emails sent or DB modified).',
+        result: { remindersSent: 0, eligibleTutorsCount: 0 }
+      });
+    }
+
     const { forceSend } = req.body || {};
     const result = await checkAndSendDocumentReminders({ forceSend: !!forceSend });
 
@@ -161,6 +187,22 @@ export const toggleBlockUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
+    /* === [START DEMO LOGIN FEATURE - USER BLOCK SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      const simulatedUser = user.toObject ? user.toObject() : { ...user };
+      simulatedUser.isBlocked = !simulatedUser.isBlocked;
+      simulatedUser.isDemo = true;
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: simulatedUser.isBlocked 
+          ? 'User suspension simulated in Demo Mode: changes are not saved in demo login.' 
+          : 'User reactivation simulated in Demo Mode: changes are not saved in demo login.',
+        user: simulatedUser
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - USER BLOCK SAFEGUARD] === */
     user.isBlocked = !user.isBlocked;
     await user.save();
     res.json({
@@ -182,6 +224,16 @@ export const deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
+    /* === [START DEMO LOGIN FEATURE - USER DELETE SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: 'User deletion simulated in Demo Mode: changes are not saved in demo login.'
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - USER DELETE SAFEGUARD] === */
     await user.deleteOne();
     res.json({
       success: true,
@@ -197,6 +249,17 @@ export const deleteUser = async (req, res) => {
 // @access  Private (Admin only)
 export const cleanNoticeMemoryAdmin = async (req, res) => {
   try {
+    /* === [START DEMO LOGIN FEATURE - NOTICE CLEANUP SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: 'Notice memory cleanup simulated in Demo Mode: changes are not saved in demo login.',
+        result: { totalCleaned: 0 }
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - NOTICE CLEANUP SAFEGUARD] === */
+
     const result = await cleanNoticeMemory();
     res.json({
       success: true,

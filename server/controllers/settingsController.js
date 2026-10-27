@@ -71,6 +71,24 @@ export const getSettings = async (req, res) => {
 // @access  Private (Admin only)
 export const updateSettings = async (req, res) => {
   try {
+    /* === [START DEMO LOGIN FEATURE - SETTINGS UPDATE SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      let currentSettings = await SiteSettings.findOne({ key: 'primary_site_settings' });
+      const base = currentSettings ? (currentSettings.toObject ? currentSettings.toObject() : currentSettings) : DEFAULT_SETTINGS;
+      const simulated = {
+        ...base,
+        ...req.body,
+        isDemo: true
+      };
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: 'Website settings updated in Demo Mode: changes are not saved in demo login.',
+        settings: simulated
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - SETTINGS UPDATE SAFEGUARD] === */
+
     let settings = await SiteSettings.findOne({ key: 'primary_site_settings' });
 
     if (!settings) {
@@ -116,6 +134,20 @@ export const updateSettings = async (req, res) => {
 // @access  Private (Admin only)
 export const resetSettings = async (req, res) => {
   try {
+    /* === [START DEMO LOGIN FEATURE - SETTINGS RESET SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: 'Website settings reset simulated in Demo Mode: changes are not saved in demo login.',
+        settings: {
+          ...DEFAULT_SETTINGS,
+          isDemo: true
+        }
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - SETTINGS RESET SAFEGUARD] === */
+
     let settings = await SiteSettings.findOne({ key: 'primary_site_settings' });
 
     if (settings) {

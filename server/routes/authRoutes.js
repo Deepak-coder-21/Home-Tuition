@@ -8,7 +8,8 @@ import {
   forgotPassword,
   verifyResetOtp,
   resetPassword,
-  updateUserProfile
+  updateUserProfile,
+  demoLogin
 } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { 
@@ -19,6 +20,10 @@ import {
 } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
+
+// === [START DEMO LOGIN FEATURE - DELETE THIS ROUTE TO REMOVE DEMO LOGIN] ===
+router.post('/demo-login', demoLogin);
+// === [END DEMO LOGIN FEATURE] ===
 
 // Standard Authentication with brute-force / bot protection
 router.post('/register', registerLimiter, registerUser);

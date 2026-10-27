@@ -3,8 +3,8 @@ import User from '../models/User.js';
 import { getAdminEmail } from '../utils/adminSync.js';
 
 // Helper to generate signed JWT token
-export const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET || 'vidyanest_default_secret_key', {
+export const generateToken = (id, role, extra = {}) => {
+  return jwt.sign({ id, role, ...extra }, process.env.JWT_SECRET || 'vidyanest_default_secret_key', {
     expiresIn: process.env.JWT_EXPIRES_IN || '30d'
   });
 };
@@ -27,10 +27,13 @@ export const protect = async (req, res, next) => {
           email: configuredAdminEmail,
           role: 'admin'
         };
+        req.isDemo = false;
         return next();
       }
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'vidyanest_default_secret_key');
+      const isDemo = Boolean(decoded.isDemo || req.headers['x-demo-session'] === 'true');
+      req.isDemo = isDemo;
       
       try {
         req.user = await User.findById(decoded.id).select('-password');
@@ -38,6 +41,17 @@ export const protect = async (req, res, next) => {
         req.user = null;
       }
       
+      // Fallback if token is demo user or decoded info
+      if (!req.user && isDemo) {
+        req.user = {
+          _id: decoded.id || 'usr-demo-1',
+          name: decoded.name || `Demo ${decoded.role || 'User'}`,
+          email: decoded.email || `demo.${decoded.role || 'user'}@vidyanest.com`,
+          role: decoded.role || 'student',
+          isDemo: true
+        };
+      }
+
       // Fallback if token is admin role or demo admin
       if (!req.user && (decoded.role === 'admin' || decoded.id === 'usr-admin-1')) {
         const adminInDb = await User.findOne({ role: 'admin' }).select('-password');
@@ -52,6 +66,20 @@ export const protect = async (req, res, next) => {
       if (!req.user) {
         return res.status(401).json({ message: 'Not authorized, user not found' });
       }
+
+      /* === [START DEMO LOGIN FEATURE - PROTECT MIDDLEWARE DEMO HANDLING] === */
+      if (isDemo || req.user.isDemo) {
+        req.isDemo = true;
+        req.user.isDemo = true;
+        if (req.user.role === 'admin') {
+          req.user.email = 'admin.demo@vidyanest.com';
+        } else if (req.user.role === 'tutor') {
+          req.user.email = 'tutor.demo@vidyanest.com';
+        } else if (req.user.role === 'student') {
+          req.user.email = 'student.demo@vidyanest.com';
+        }
+      }
+      /* === [END DEMO LOGIN FEATURE - PROTECT MIDDLEWARE DEMO HANDLING] === */
 
       return next();
     } catch (error) {
@@ -104,7 +132,35 @@ export const optionalProtect = async (req, res, next) => {
     try {
       const token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'vidyanest_default_secret_key');
-      req.user = await User.findById(decoded.id).select('-password');
+      const isDemo = Boolean(decoded.isDemo || req.headers['x-demo-session'] === 'true');
+      req.isDemo = isDemo;
+      
+      try {
+        req.user = await User.findById(decoded.id).select('-password');
+      } catch {
+        req.user = null;
+      }
+
+      if (!req.user && isDemo) {
+        req.user = {
+          _id: decoded.id || 'usr-demo-1',
+          name: decoded.name || `Demo ${decoded.role || 'User'}`,
+          email: decoded.email || `demo.${decoded.role || 'user'}@vidyanest.com`,
+          role: decoded.role || 'student',
+          isDemo: true
+        };
+      }
+
+      if (req.user && isDemo) {
+        req.user.isDemo = true;
+        if (req.user.role === 'admin') {
+          req.user.email = 'admin.demo@vidyanest.com';
+        } else if (req.user.role === 'tutor') {
+          req.user.email = 'tutor.demo@vidyanest.com';
+        } else if (req.user.role === 'student') {
+          req.user.email = 'student.demo@vidyanest.com';
+        }
+      }
     } catch (error) {
       // Continue unauthenticated if token is invalid or expired
       req.user = null;

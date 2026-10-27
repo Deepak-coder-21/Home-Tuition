@@ -31,11 +31,15 @@ export const isImageKitConfigured = () => {
  * Safely delete an existing asset from ImageKit by fileId or by ImageKit URL.
  * Automatically catches and logs errors without failing the calling request.
  */
-export const deleteFromImageKit = async (fileIdOrUrl) => {
-  if (!fileIdOrUrl || !isImageKitConfigured()) return false;
+export const deleteFromImageKit = async (fileIdOrUrl, isDemo = false) => {
+  if (!fileIdOrUrl || !isImageKitConfigured() || isDemo) return false;
 
   try {
     const target = String(fileIdOrUrl).trim();
+    if (target.startsWith('demo') || target.includes('demo') || target.includes('dummy')) {
+      console.log(`🛡️ ImageKit deletion skipped for demo asset: ${target}`);
+      return true;
+    }
 
     // 1. If it's a direct fileId (not a URL and doesn't contain slashes)
     if (!target.startsWith('http') && !target.includes('/')) {

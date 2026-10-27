@@ -120,6 +120,30 @@ export const addReview = async (req, res) => {
       return res.status(404).json({ message: 'Tutor not found' });
     }
 
+    /* === [START DEMO LOGIN FEATURE - REVIEW CREATION SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      return res.status(201).json({
+        success: true,
+        isDemo: true,
+        message: 'Review simulated in Demo Mode: changes are not saved in demo login.',
+        review: {
+          _id: new mongoose.Types.ObjectId().toString(),
+          tutor: tutor._id,
+          studentUser: req.user._id,
+          studentName: studentName || req.user.studentName || 'Demo Student',
+          parentName: parentName || req.user.name || 'Demo Parent',
+          rating: Number(rating),
+          subject: subject || 'General',
+          comment: comment || 'Excellent and thorough teaching methodology!',
+          createdAt: new Date(),
+          isDemo: true
+        },
+        tutorRating: tutor.rating || 5,
+        reviewCount: (tutor.reviewCount || 0) + 1
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - REVIEW CREATION SAFEGUARD] === */
+
     // Rule: Students can give teacher rating only after 1 month of accepted inquiry
     const studentQueries = [{ studentUser: req.user._id }];
     if (req.user.email) {
@@ -224,6 +248,16 @@ export const addReview = async (req, res) => {
 // @access  Private (Admin only)
 export const deleteReview = async (req, res) => {
   try {
+    /* === [START DEMO LOGIN FEATURE - REVIEW DELETION SAFEGUARD: Remove lines if disabling demo] === */
+    if (req.isDemo || req.user?.isDemo) {
+      return res.json({
+        success: true,
+        isDemo: true,
+        message: 'Review removal simulated in Demo Mode: changes are not saved in demo login.'
+      });
+    }
+    /* === [END DEMO LOGIN FEATURE - REVIEW DELETION SAFEGUARD] === */
+
     const review = await Review.findById(req.params.id);
     if (!review) {
       return res.status(404).json({ message: 'Review not found' });
