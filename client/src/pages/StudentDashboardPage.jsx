@@ -157,8 +157,8 @@ export default function StudentDashboardPage() {
 
   const tabsSectionRef = useRef(null);
 
-  // Smoothly scroll down to the student tabs & requests area, accounting for sticky navbar
-  const scrollToTabsSection = (behavior = 'smooth') => {
+  // Scroll down to the student tabs & requests area, accounting for sticky navbar
+  const scrollToTabsSection = (behavior = 'auto') => {
     if (tabsSectionRef.current) {
       const headerOffset = 95; // Offset for sticky pill navbar + top spacing
       const elementPosition = tabsSectionRef.current.getBoundingClientRect().top;
@@ -180,16 +180,7 @@ export default function StudentDashboardPage() {
     }
   }, [searchParams]);
 
-  // Auto-scroll to tabs section on initial load if tab parameter is specified
-  useEffect(() => {
-    const tabParam = searchParams.get('tab');
-    if (tabParam) {
-      const timer = setTimeout(() => {
-        scrollToTabsSection('smooth');
-      }, 250);
-      return () => clearTimeout(timer);
-    }
-  }, []); // Run once on initial mount
+  // Note: Tab is synced with URL query params without jarring programmatic scroll on mount
 
   // Listen to cross-component tab switch requests (e.g. from Navbar on desktop or mobile menu)
   useEffect(() => {
@@ -199,7 +190,7 @@ export default function StudentDashboardPage() {
         setActiveTab(targetTab);
         setSearchParams({ tab: targetTab }, { replace: true });
         setTimeout(() => {
-          scrollToTabsSection('smooth');
+          scrollToTabsSection('auto');
         }, 50);
       }
     };
@@ -707,6 +698,7 @@ export default function StudentDashboardPage() {
               return (
                 <div
                   key={inq.id || inq._id}
+                  style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
                   className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-soft space-y-4 max-w-full"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
@@ -753,7 +745,7 @@ export default function StudentDashboardPage() {
                   </div>
 
                   {/* Details Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs bg-warm-50/70 p-3 rounded-xl border border-warm-100 break-words">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs bg-warm-50 p-3 rounded-xl border border-warm-100 break-words">
                     <div>
                       <span className="text-stone-400 block font-medium">Mode & Full Location</span>
                       <span className="font-bold text-stone-800 block capitalize">{inq.mode?.replace('_', ' ')}</span>
@@ -788,11 +780,11 @@ export default function StudentDashboardPage() {
                   {inq.status === 'accepted' && (
                     <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-stone-100">
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-stone-700 min-w-0">
-                        <span className="flex items-center gap-1.5 font-semibold text-emerald-700 break-all">
+                        <span className="flex items-center gap-1.5 font-semibold text-emerald-700 break-words">
                           <Phone className="w-3.5 h-3.5 shrink-0" />
                           <span>Direct Phone: {matchedTutor?.phone || inq.tutorPhone || inq.tutor?.phone || '+91 98711 54321'}</span>
                         </span>
-                        <span className="flex items-center gap-1.5 text-stone-500 break-all">
+                        <span className="flex items-center gap-1.5 text-stone-500 break-words">
                           <Mail className="w-3.5 h-3.5 shrink-0" />
                           <span>{matchedTutor?.email || inq.tutorEmail || inq.tutor?.email || 'tutor@vidyanest.in'}</span>
                         </span>
@@ -856,6 +848,7 @@ export default function StudentDashboardPage() {
               return (
                 <div
                   key={inq.id || inq._id}
+                  style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
                   className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-soft flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 max-w-full"
                 >
                   <div className="flex items-center gap-3 sm:gap-4 min-w-0">

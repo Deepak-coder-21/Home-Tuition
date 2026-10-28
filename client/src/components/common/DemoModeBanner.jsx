@@ -54,7 +54,7 @@ export default function DemoModeBanner() {
   };
 
   return (
-    <div className="relative z-40 bg-gradient-to-r from-amber-900 via-stone-900 to-amber-950 text-amber-100 border-b border-amber-500/30 shadow-md w-full overflow-hidden">
+    <div className="relative z-40 bg-gradient-to-r from-amber-900 via-stone-900 to-amber-950 text-amber-100 border-b border-amber-500/30 shadow-md w-full">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 max-w-full">
           

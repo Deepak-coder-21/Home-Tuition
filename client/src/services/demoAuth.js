@@ -44,7 +44,7 @@ export const loginAsDemo = async ({ role, dispatch, navigate }) => {
     } else if (normalizedRole === 'tutor') {
       navigate('/tutor/dashboard', { replace: true });
     } else {
-      navigate('/student/dashboard?tab=inquiries', { replace: true });
+      navigate('/student/dashboard', { replace: true });
     }
   }
 
