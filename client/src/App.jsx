@@ -48,7 +48,7 @@ export default function App() {
   return (
     <Router>
       <ScrollToTop />
-      <div className="min-h-screen flex flex-col bg-warm-50 text-stone-800 selection:bg-brand-200 selection:text-brand-900 w-full overflow-x-hidden">
+      <div className="min-h-screen flex flex-col bg-warm-50 text-stone-800 selection:bg-brand-200 selection:text-brand-900 w-full overflow-x-clip">
         <DemoModeBanner />
         <Navbar />
 

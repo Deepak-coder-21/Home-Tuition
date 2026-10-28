@@ -427,7 +427,7 @@ export default function StudentDashboardPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 relative w-full overflow-x-hidden">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 relative w-full overflow-x-clip">
 
       {/* Prominent Global Floating Save Toast Notification */}
       {saveSuccess && (
@@ -453,7 +453,7 @@ export default function StudentDashboardPage() {
       )}
 
       {/* Dynamic Portal Console Header */}
-      <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-terracotta-950 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-7 text-white shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-stone-800 max-w-full overflow-hidden">
+      <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-terracotta-950 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-7 text-white shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-stone-800 max-w-full">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-terracotta-500/20 text-terracotta-300 text-xs font-bold border border-terracotta-500/30">
             <Sparkles className="w-3.5 h-3.5" />
@@ -553,7 +553,7 @@ export default function StudentDashboardPage() {
       )}
       
       {/* Student Profile Overview Header */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-stone-200 shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6 max-w-full overflow-hidden">
+      <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-stone-200 shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6 max-w-full">
         <div className="flex items-center gap-3.5 sm:gap-4 min-w-0 w-full md:w-auto flex-1">
           <div className="relative group shrink-0">
             {currentUser?.avatar ? (
@@ -707,7 +707,7 @@ export default function StudentDashboardPage() {
               return (
                 <div
                   key={inq.id || inq._id}
-                  className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-soft space-y-4 max-w-full overflow-hidden"
+                  className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-soft space-y-4 max-w-full"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -856,7 +856,7 @@ export default function StudentDashboardPage() {
               return (
                 <div
                   key={inq.id || inq._id}
-                  className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-soft flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 max-w-full overflow-hidden"
+                  className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-soft flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 max-w-full"
                 >
                   <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                     <img
